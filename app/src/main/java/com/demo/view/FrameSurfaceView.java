@@ -12,6 +12,10 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.ref.WeakReference;
 
 public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
+    static {
+        System.loadLibrary("fpn_mono");
+    }
+
     private SurfaceHolder       mSurfaceHolder;
     private WeakReference<Activity>     mWeakActivity;
 
