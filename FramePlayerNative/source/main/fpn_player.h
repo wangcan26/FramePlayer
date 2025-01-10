@@ -34,6 +34,7 @@ namespace fpn
             MSG_LOOP_EXIT = 4
         };
         enum RenderMessage mMessage = RenderMessage::MSG_NONE;
+        bool mIsPaused = false;
     };
 }
 

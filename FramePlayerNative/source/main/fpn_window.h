@@ -10,7 +10,7 @@ namespace fpn
         FLAG_WINDOW_RESIZE = 2,
         FLAG_WINDOW_RELEASE = 3,
         FLAG_WINDOW_DESTROY = 4,
-        FLAG_WINDOW_PRESENT = 5
+        FLAG_WINDOW_PRERENT = 5
     };
 
     class FPNWindow 
@@ -30,8 +30,11 @@ namespace fpn
         bool notify(int what);
     private:
         bool _onCreate();
+        bool _onRestore();
         void _onRelease();
         void _onDestroy();
+        bool _onResize();
+        void _onPresent();
     private:
         FPNContext *mContext = nullptr;
         int mWidth, mHeight;

@@ -28,6 +28,13 @@ namespace fpn
         switch(what) {
             case FLAG_WINDOW_CREATE:
                 return _onCreate();
+            case FLAG_WINDOW_RESTORE:
+            {
+                _onRestore();
+                break;
+            }
+            case FLAG_WINDOW_RESIZE:
+                return _onResize();;
             case FLAG_WINDOW_RELEASE:
             {
                 _onRelease();
@@ -36,6 +43,11 @@ namespace fpn
             case FLAG_WINDOW_DESTROY:
             {
                 _onDestroy();
+                break;
+            }
+            case FLAG_WINDOW_PRERENT:
+            {
+                _onPresent();
                 break;
             }
         }
@@ -119,8 +131,46 @@ namespace fpn
         return true;
     }
 
+    bool FPNWindow::_onRestore() {
+#ifdef TARGET_OS_ANDROID
+        EGLSurface  surface;
+
+        if(!(surface = eglCreateWindowSurface(mContext->display, mContext->config, mContext->window, 0)))
+        {
+            FPN_LOGE(LOG_TAG,"eglCreateWindowSurface() returned error %d", eglGetError());
+            _onDestroy();
+            return false;
+        }
+        if(!eglMakeCurrent(mContext->display, surface, surface, mContext->context)){
+            FPN_LOGE(LOG_TAG,"eglMakeCurrent() returned error %d", eglGetError());
+            _onDestroy();
+            return false;
+        }
+
+        mContext->surface = surface;
+        return true;
+#endif      
+    }
+
+    bool FPNWindow::_onResize() {
+#ifdef TARGET_OS_ANDROID
+        if(!eglMakeCurrent(mContext->display, mContext->surface, mContext->surface, mContext->context)){
+            FPN_LOGE(LOG_TAG,"eglMakeCurrent() returned error %d", eglGetError());
+            _onDestroy();
+            return false;
+        }
+
+        if(!eglQuerySurface(mContext->display, mContext->surface, EGL_WIDTH, &mWidth) ||
+            !eglQuerySurface(mContext->display, mContext->surface, EGL_HEIGHT, &mHeight)){
+            FPN_LOGE(LOG_TAG,"eglQuerySurface() returned error %d", eglGetError());
+            _onDestroy();
+            return false;
+        }
+#endif 
+        return true;
+    }
+
     void FPNWindow::_onRelease() {
-        if (!isValid()) return;
 #ifdef TARGET_OS_ANDROID
         eglMakeCurrent(mContext->display, EGL_NO_SURFACE, EGL_NO_SURFACE, mContext->context);
         eglDestroySurface(mContext->display, mContext->surface);
@@ -146,4 +196,11 @@ namespace fpn
 #endif 
         mWindowInited = false;
     }
+
+    void FPNWindow::_onPresent() {
+        if (!eglSwapBuffers(mContext->display, mContext->surface)) {
+            FPN_LOGE(LOG_TAG,"eglSwapBuffers() returned error %d", eglGetError());
+        }
+    }
+
 }

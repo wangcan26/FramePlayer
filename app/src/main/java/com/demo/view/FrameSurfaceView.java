@@ -55,6 +55,6 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-
+        mPlayer.setSurface(null);
     }
 }
