@@ -112,7 +112,7 @@ macro(add_android_static_libs LIB_DIR)
       set_target_properties(${LIB_NAME} PROPERTIES IMPORTED_LOCATION
       ${LIB_DIR}/lib${LIB_NAME}.a)
     endforeach(LIB_NAME ${ARGN})
-endmacro(add_static_libs)
+endmacro(add_android_static_libs)
 
 
 macro(add_android_shared_libs LIB_DIR)
@@ -124,4 +124,4 @@ macro(add_android_shared_libs LIB_DIR)
         set_target_properties(${LIB_NAME} PROPERTIES IMPORTED_LOCATION
         ${LIB_DIR}/lib${LIB_NAME}.so)
     endforeach(LIB_NAME ${ARGN})
-endmacro(add_shared_libs)
+endmacro(add_android_shared_libs)

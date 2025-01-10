@@ -28,4 +28,10 @@ public class TestFramePlayer extends Activity {
     protected void onPause() {
         super.onPause();
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSurfaceView.onDestroy();
+    }
 }

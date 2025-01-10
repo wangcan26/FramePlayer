@@ -8,10 +8,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ffunction-sections -fdata-sections -fvi
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fno-rtti")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-rtti")
 
+include_directories(PUBLIC ${SOURCE_ROOT_DIR})
+
+add_subdirectory(log)
 if(TARGET_OS_ANDROID)
     add_subdirectory(android)
 endif()
-add_subdirectory(log)
 add_subdirectory(main)
 
 

@@ -1,6 +1,24 @@
 {
     "files.associations": {
         "iostream": "cpp",
-        "xlocale": "cpp"
-    }
+        "xlocale": "cpp",
+        "string": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "__string": "cpp",
+        "algorithm": "cpp",
+        "cstring": "cpp",
+        "__config": "cpp",
+        "utility": "cpp",
+        "unordered_map": "cpp",
+        "thread": "cpp",
+        "memory": "cpp",
+        "xmemory": "cpp",
+        "__functional_03": "cpp",
+        "__tree": "cpp",
+        "memory_resource": "cpp",
+        "functional": "cpp",
+        "__mutex_base": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

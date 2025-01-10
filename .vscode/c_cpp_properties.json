@@ -3,9 +3,10 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}\\**",
                 "C:\\Users\\lenovo\\AppData\\Local\\Android\\Sdk\\ndk\\23.0.7599858\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\include",
-                "C:\\Users\\lenovo\\AppData\\Local\\Android\\Sdk\\ndk\\23.0.7599858\\sources\\cxx-stl\\llvm-libc++\\include"
+                "C:\\Users\\lenovo\\AppData\\Local\\Android\\Sdk\\ndk\\23.0.7599858\\sources\\cxx-stl\\llvm-libc++\\include",
+                "C:/Users/lenovo/AppData/Local/Android/Sdk/ndk/23.0.7599858/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/arm-linux-androideabi"
             ],
             "defines": [
                 "_DEBUG",

@@ -1,6 +1,9 @@
 #ifndef FPN_JNIBASE_H
+#define FPN_JNIBASE_H
 
 #include <jni.h>
+#include <string>
+#include <vector>
 
 #ifdef __cplusplus
 extern "C"
