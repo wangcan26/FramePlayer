@@ -1,32 +1,30 @@
 #ifndef FPN_TEST_NODE_H
 #define FPN_TEST_NODE_H
 #include <string>
+#include <vector>
+#include <thread>
 #ifdef TARGET_OS_ANDROID
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #endif
+#include "main/fpn_context.h"
+
+#define FPN_IMAGE_BUFFER_SIZE_MAX 2 
 
 namespace fpn 
 {
-    enum FPNImageFormat {
-        Invalid = 0,
-        RGB8Unorm,
-        RGBA8Unorm
-    };
-    struct FPNImageData 
-    {
-        int width;
-        int height;
-        enum FPNImageFormat format;
-        void *data;
-    };
-
     struct VertexBuffer {
 #ifdef TARGET_OS_ANDROID
         GLuint vertex;
         GLuint uv;
         GLuint indice;
 #endif   
+    };
+
+    struct TextureBuffer {
+#ifdef TARGET_OS_ANDROID
+        GLuint texture;
+#endif 
     };
 
     struct RenderPipeline
@@ -36,6 +34,7 @@ namespace fpn
         GLuint position;
         GLuint uv;
         GLuint color;
+        GLuint texture;
 #endif 
     };
 
@@ -52,10 +51,12 @@ namespace fpn
 
         //must be called in render thread
         void paint();
-        //receive image data from producer thread to a locked buffer queue
-        void lock(struct FPNImageData& data);
-        //unlock the buffer queue and notify producer thread continue to send image data.
-        void unlock();
+        
+        /*
+        * must be called in producer thread
+        * obtain a memory opaque of FPNImageData for producer to write data into it.
+        */
+        void opaque(struct FPNImageData* data);
     private:
         void _initialize();
 #ifdef TARGET_OS_ANDROID
@@ -67,9 +68,17 @@ namespace fpn
         bool mIsInited = false;
         std::string mName = "gl_canvas";
         struct VertexBuffer mGeometry;
-        struct RenderPipeline mPipeline;
-
+        struct TextureBuffer mTexture;
+        struct RenderPipeline mDefaultPipeline;
+        struct RenderPipeline mTexturePipeline;
+        
+        std::mutex mCanvasMutex;
         //image data queue
+        FPNImageData mImageBuffers[FPN_IMAGE_BUFFER_SIZE_MAX];
+        bool  mBufferWind = true;
+        int mReadIndex =  -1;
+        int mWriteIndex = -1;
+        bool mCreateTexture = true;
     };
 }
 

@@ -23,39 +23,139 @@ static auto kColorShader =
         "  gl_FragColor = uColor;\n"
         "}\n";
 
+static auto kTextureShader =
+        "precision mediump float;\n"
+        "varying vec2 oUv;\n"
+        "uniform sampler2D uTexture;\n"
+        "void main() {\n"
+        "   vec4 color = texture2D(uTexture, oUv);\n"
+        "   gl_FragColor = color;\n"
+        "}\n";
+
 static const GLfloat kVertices[] = {
                                 -1.0f, -1.0f, 0.0f,
                                 -1.0f, 1.0f,  0.0f,
                                 1.0f, 1.0f,  0.0f,
                                 1.0f, -1.0f, 0.0f};
 
-static const GLfloat kUvs[] = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0};
+static const GLfloat kUvs[] = {0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0};
 
 static const GLushort kIndices[] = {0, 3, 1, 1, 3, 2};
 
-static const float kDefaultColor[] = {0, 1, 1, 1};
+static const float kDefaultColor[] = {0, 1, 0, 1};
 
 namespace fpn 
 {
     FPNCanvas::FPNCanvas() {
         _initialize();
     }
-    FPNCanvas::~FPNCanvas() {}
+    FPNCanvas::~FPNCanvas() {
+        std::lock_guard<std::mutex> rm(mCanvasMutex);
+        if (!mBufferWind) {
+            for (int i = 0; i < FPN_IMAGE_BUFFER_SIZE_MAX; i++) {
+                FPNImageData& buffer = mImageBuffers[mWriteIndex];
+                free(buffer.data);
+            }
+        }
+    }
+
+    void FPNCanvas::opaque(struct FPNImageData* data) {
+        std::lock_guard<std::mutex> rm(mCanvasMutex);
+        if (data->format == FPNImageFormat::Invalid) {
+            return;
+        }
+        if(!mBufferWind) {
+            int width = mImageBuffers[0].width;
+            int height = mImageBuffers[0].height;
+            int format = mImageBuffers[0].format;
+            if (width != data->width || height != data->height || format != data->format) {
+                mBufferWind = true;
+            }
+        }
+        int byteSize = 1;
+        if (data->format == FPNImageFormat::RGBA8Unorm) {
+            byteSize = 4;
+        } else if (data->format == FPNImageFormat::RGB8Unorm) {
+            byteSize = 3;
+        }
+        if (mBufferWind) {
+            for (int i = 0; i < FPN_IMAGE_BUFFER_SIZE_MAX; i++) {
+                FPNImageData buffer;
+                buffer.width = data->width;
+                buffer.height = data->height;
+                buffer.format = data->format;
+                size_t size = buffer.width * buffer.height * byteSize;
+                buffer.data = malloc(size);
+                memcpy(buffer.data, data->data, size);
+                mImageBuffers[i] = buffer;
+            }
+            mBufferWind = false;
+            mReadIndex = 0;
+            mWriteIndex = 1;
+            mCreateTexture = true;
+        } else {
+            FPNImageData& buffer = mImageBuffers[mWriteIndex];
+            size_t size = buffer.width * buffer.height * byteSize;
+            memcpy(buffer.data, data->data, size);
+            //swap
+            int tmp = mReadIndex;
+            mReadIndex = mWriteIndex;
+            mWriteIndex = tmp;
+        }
+        //FPN_LOGI(LOG_TAG, "FPNCanvas swap buffer: [%d, %d]", mReadIndex, mWriteIndex);
+    }
 
     void FPNCanvas::paint() {
         if (!mIsInited) return;
 #ifdef TARGET_OS_ANDROID
-        glUseProgram(mPipeline.program);
-        glUniform4fv(mPipeline.color, 1, kDefaultColor);
+        bool chooseDefault = mReadIndex == -1;
+        //upload
+        do {
+            if (chooseDefault) 
+            {
+                break;
+            }                
+            FPNImageData &buffer = mImageBuffers[mReadIndex];
+            if (!buffer.data)
+            {
+                break;
+            }
+            if (mCreateTexture) {
+                glGenTextures(1, &mTexture.texture);
+                glBindTexture(GL_TEXTURE_2D, mTexture.texture);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, buffer.width, buffer.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data);
+                glGenerateMipmap(GL_TEXTURE_2D);
+                mCreateTexture = false;
+            } else {
+                glBindTexture(GL_TEXTURE_2D, mTexture.texture);
+                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, buffer.width, buffer.height, GL_RGBA, GL_UNSIGNED_BYTE, buffer.data);
+            }
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, 0);
+        } while (0);
+        
+       
+        RenderPipeline pipeline = chooseDefault? mDefaultPipeline: mTexturePipeline;
+        glUseProgram(pipeline.program);
+        if (chooseDefault) {
+            glUniform4fv(pipeline.color, 1, kDefaultColor);
+        } else {
+            glBindTexture(GL_TEXTURE_2D, mTexture.texture);
+            glUniform1i(pipeline.texture, 0);
+        }
 
-        glVertexAttribPointer(mPipeline.position, 3, GL_FLOAT, GL_FALSE, 0, kVertices);
-        glEnableVertexAttribArray(mPipeline.position);
-
-        glVertexAttribPointer(mPipeline.uv, 2, GL_FLOAT, GL_FALSE, 0, kUvs);
-        glEnableVertexAttribArray(mPipeline.uv);
+        glVertexAttribPointer(pipeline.position, 3, GL_FLOAT, GL_FALSE, 0, kVertices);
+        glEnableVertexAttribArray(pipeline.position);
+        glVertexAttribPointer(pipeline.uv, 2, GL_FLOAT, GL_FALSE, 0, kUvs);
+        glEnableVertexAttribArray(pipeline.uv);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mGeometry.indice);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #endif 
     }
@@ -77,14 +177,24 @@ namespace fpn
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6, kIndices, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        mPipeline.program = _createProgram(kVertexShader, kColorShader);
-        if(mPipeline.program <= 0){
-            FPN_LOGE(LOG_TAG, "FPNCanvas Could not create program.");
+        mDefaultPipeline.program = _createProgram(kVertexShader, kColorShader);
+        if(mDefaultPipeline.program <= 0){
+            FPN_LOGE(LOG_TAG, "FPNCanvas Could not create default program.");
             return;
         }
-        mPipeline.position = glGetAttribLocation(mPipeline.program, "vPosition");
-        mPipeline.uv = glGetAttribLocation(mPipeline.program, "vUv");
-        mPipeline.color = glGetUniformLocation(mPipeline.program, "uColor");
+        mDefaultPipeline.position = glGetAttribLocation(mDefaultPipeline.program, "vPosition");
+        mDefaultPipeline.uv = glGetAttribLocation(mDefaultPipeline.program, "vUv");
+        mDefaultPipeline.color = glGetUniformLocation(mDefaultPipeline.program, "uColor");
+
+        mTexturePipeline.program = _createProgram(kVertexShader, kTextureShader);
+        if(mTexturePipeline.program <= 0){
+            FPN_LOGE(LOG_TAG, "FPNCanvas Could not create texture program.");
+            return;
+        }
+        mTexturePipeline.position = glGetAttribLocation(mTexturePipeline.program, "vPosition");
+        mTexturePipeline.uv = glGetAttribLocation(mTexturePipeline.program, "vUv");
+        mTexturePipeline.texture = glGetUniformLocation(mTexturePipeline.program, "uTexture");
+
 #endif 
         mIsInited = true;
     }

@@ -9,7 +9,9 @@
                 "C:/Users/lenovo/AppData/Local/Android/Sdk/ndk/23.0.7599858/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/arm-linux-androideabi"
             ],
             "defines": [
-                "TARGET_OS_ANDROID"
+                "TARGET_OS_ANDROID",
+                "FPN_USE_EXTRA_RENDER",
+                "FPN_USE_EXTRA_PRODUCER"
             ],
             "windowsSdkVersion": "10.0.26100.0",
             "compilerPath": "cl.exe",

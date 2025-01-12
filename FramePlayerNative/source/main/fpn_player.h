@@ -3,27 +3,47 @@
 
 #include <memory>
 #include <thread>
+#include <string>
 
 namespace fpn 
 {
     struct FPNContext;
+    struct FPNImageData;
     class FPNWindow;
+#ifdef FPN_USE_EXTRA_RENDER
     class FPNCanvas;
+#endif 
+#ifdef FPN_USE_EXTRA_PRODUCER
+    class FPNGifProducer;
+#endif 
     class FPNPlayer {
     public:
         FPNPlayer();
         ~FPNPlayer();
 
+        void setContentUri(const std::string& uri);
+        void start();
+        bool isStarted() const {return mIsReady && mStarted;}
+
         void makeCurrent();
         FPNContext *getContext() const;
 
+        //The {FrameImageData}data will be copied and cached to enable efficient asynchronous execution
+        //between cpu and gpu.
+        //Avoid to change width, height or foramt of the data for performance.
+        void frame(struct FPNImageData* data);
     private:
         void _render();
 
     private:
         std::unique_ptr<FPNContext> mContext;
         std::unique_ptr<FPNWindow>  mWindow;
+#ifdef FPN_USE_EXTRA_RENDER
         std::unique_ptr<FPNCanvas>  mCanvas;
+#endif 
+#ifdef FPN_USE_EXTRA_PRODUCER
+        std::unique_ptr<FPNGifProducer> mGifProducer;
+#endif 
         //Rendering Thread resources
         std::thread mRenderThread;
         std::mutex mRenderMutex;
@@ -37,7 +57,9 @@ namespace fpn
         };
         enum RenderMessage mMessage = RenderMessage::MSG_NONE;
         bool mIsPaused = false;
-        bool mIsStarted = false;
+        bool mIsReady = false;
+        bool mStarted = false;
+        std::string mContentUri;
     };
 }
 

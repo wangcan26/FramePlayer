@@ -2,7 +2,12 @@
 #include "fpn_context.h"
 #include "fpn_window.h"
 #include "log/fpn_log.h"
+#ifdef FPN_USE_EXTRA_RENDER
 #include "extra/render/fpn_canvas.h"
+#endif
+#ifdef FPN_USE_EXTRA_PRODUCER
+#include "extra/producer/fpn_gif_producer.h"
+#endif 
 
 #ifdef TARGET_OS_ANDROID
 #include <GLES2/gl2.h>
@@ -25,6 +30,14 @@ namespace fpn {
         }
     }
 
+    void FPNPlayer::setContentUri(const std::string& uri) {
+        mContentUri = uri;
+    }
+
+    void FPNPlayer::start() {
+        mStarted = true;
+    }
+
     void FPNPlayer::makeCurrent() {
         std::unique_lock<std::mutex> rm(mRenderMutex);
         if (mContext && mContext->window)
@@ -44,6 +57,14 @@ namespace fpn {
     }
 
     FPNContext* FPNPlayer::getContext() const  {return mContext.get();}
+
+    void FPNPlayer::frame(struct FPNImageData* data) {
+#ifdef FPN_USE_EXTRA_RENDER
+        if (mCanvas) {
+            mCanvas->opaque(data);
+        }
+#endif 
+    }
 
     void FPNPlayer::_render() {
         bool run = true;
@@ -84,7 +105,7 @@ namespace fpn {
                 }
                 mMessage = MSG_NONE;
                 mRenderCond.notify_one();
-                mIsStarted = false;
+                mStarted = false;
                 run = false;
                 break;
             }
@@ -92,23 +113,38 @@ namespace fpn {
                 break;
             }
             if (mWindow->isValid() && !mIsPaused) {
-#ifdef TARGET_OS_ANDROID    
+#ifdef TARGET_OS_ANDROID   
                 glClearColor(1.0, 0.0, 0.0, 1.0);
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 glViewport(0, 0, mWindow->getWidth(), mWindow->getHeight());
                 glDisable(GL_DEPTH_TEST);
 #endif 
                 //Begin draw
-                if (!mIsStarted) {
+                if (!mIsReady && mStarted) {
+#ifdef FPN_USE_EXTRA_RENDER
                     mCanvas.reset(new FPNCanvas());
-                    mIsStarted = true;
+#endif
+#ifdef FPN_USE_EXTRA_PRODUCER
+                    mGifProducer.reset(new FPNGifProducer(mContentUri, this));
+                    mGifProducer->start();
+#endif 
+                    mIsReady = true;
                 }
-                if (mCanvas) {
+
+
+                if (isStarted()) {
+#ifdef FPN_USE_EXTRA_RENDER
                     mCanvas->paint();
+#endif
                 }
                 
                 mWindow->notify(FLAG_WINDOW_PRERENT);
             }
+#ifdef FPN_USE_EXTRA_PRODUCER
+            if (mGifProducer) {
+                mIsPaused? mGifProducer->pause() : mGifProducer->resume();
+            }
+#endif 
         }
     }
 }

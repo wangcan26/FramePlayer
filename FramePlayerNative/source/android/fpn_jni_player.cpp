@@ -29,6 +29,19 @@ static void player_release(JNIEnv* jenv, jobject obj, jlong handle) {
     m_players[handle] = nullptr;
 }
 
+static void player_start(JNIEnv* jenv, jobject obj, jlong handle) {
+    FPN_LOGI(LOG_TAG, "player started");
+    fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
+    player->start();
+}
+
+static void player_set_content(JNIEnv* jenv, jobject obj, jlong handle, jstring uri) {
+    std::string contentUri = jstring2string(jenv, uri);
+    FPN_LOGI(LOG_TAG, "player set content: %s", contentUri.c_str());
+    fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
+    player->setContentUri(contentUri);
+}
+
 static void player_set_surface(JNIEnv* jenv, jobject obj, jlong handle, jobject surface) {
     FPN_LOGI(LOG_TAG, "player set surface, %d, %ld", surface, handle);
     fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
@@ -60,7 +73,9 @@ namespace fpn {
     void JniPlayer::initialize() {
         mMethods = {
                 {"nativeSetSurface", "(JLandroid/view/Surface;)V", (void*)player_set_surface},
+                {"nativeSetContentUri", "(JLjava/lang/String;)V", (void*)player_set_content},
                 {"nativeCreate", "()J", (void*)player_create},
+                {"nativeStart", "(J)V", (void*)player_start},
                 {"nativeRelease", "(J)V", (void*)player_release}
         };
     }

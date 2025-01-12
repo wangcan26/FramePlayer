@@ -8,6 +8,19 @@
 
 namespace fpn 
 {
+    enum FPNImageFormat {
+        Invalid = 0,
+        RGB8Unorm,
+        RGBA8Unorm
+    };
+    struct FPNImageData 
+    {
+        int width;
+        int height;
+        enum FPNImageFormat format;
+        void *data = nullptr;
+    };
+
     struct FPNContext {
 #if TARGET_OS_ANDROID
         ANativeWindow         *window    = nullptr;

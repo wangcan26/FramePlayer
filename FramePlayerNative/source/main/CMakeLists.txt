@@ -11,6 +11,7 @@ set_target_properties(${target} PROPERTIES CXX_STANDARD 17)
 set(LIBS EGL GLESv3)
 if(BUILD_FPN_EXTRA)
     set(LIBS ${LIBS} fpn_extra_render)
+    set(LIBS ${LIBS} fpn_extra_producer)
 endif()
 
 target_link_libraries(${target} PUBLIC fpn_android fpn_log ${LIBS})

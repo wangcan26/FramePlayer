@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+extern std::string jstring2string(JNIEnv *env, jstring jStr);
+extern jstring string2jstring(JNIEnv *env, const char* pat);
+
 #ifdef __cplusplus
 extern "C"
 {
