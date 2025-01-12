@@ -38,6 +38,7 @@ function build_frameplayer_lib_for_abi() {
         -DCMAKE_BUILD_TYPE=$2 \
         -DANDROID_ABI=$1 \
         -DANDROID_PLATFORM=android-28 \
+        -DBUILD_FPN_EXTRA=ON              \
         -G Ninja \
         -B $abs_path_build -S $base_path/../ || exit 1
          \
@@ -57,7 +58,7 @@ function copy_frameplayer_lib_to_app() {
   if [ ! -d "$target_path_folder" ]; then
     mkdir -p $target_path_folder
   fi
-  echo "installing fpn_main.so...."
+  echo "installing fpn_mono.so...."
   cp  -rf $src_path_file $target_path_folder
   echo "install scucess"
 }

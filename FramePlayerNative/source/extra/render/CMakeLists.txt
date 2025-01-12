@@ -1,16 +1,12 @@
 get_filename_component(target ${CMAKE_CURRENT_LIST_DIR} NAME)
 
-set(target fpn_mono)
-add_library(${target} SHARED "")
+set(target fpn_extra_render)
+
+add_library(${target} STATIC "")
 
 file(GLOB_RECURSE srcs *.h *.c *.cpp)
+
 target_sources(${target} PRIVATE ${srcs})
 set_target_properties(${target} PROPERTIES CXX_STANDARD 17)
 #include_directories(PUBLIC ${CMAKE_CURRENT_LIST_DIR})
-
-set(LIBS EGL GLESv3)
-if(BUILD_FPN_EXTRA)
-    set(LIBS ${LIBS} fpn_extra_render)
-endif()
-
-target_link_libraries(${target} PUBLIC fpn_android fpn_log ${LIBS})
+target_link_libraries(${target} PUBLIC android GLESv3 fpn_log)

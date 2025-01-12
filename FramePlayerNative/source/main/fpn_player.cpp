@@ -2,6 +2,7 @@
 #include "fpn_context.h"
 #include "fpn_window.h"
 #include "log/fpn_log.h"
+#include "extra/render/fpn_canvas.h"
 
 #ifdef TARGET_OS_ANDROID
 #include <GLES2/gl2.h>
@@ -45,7 +46,6 @@ namespace fpn {
     FPNContext* FPNPlayer::getContext() const  {return mContext.get();}
 
     void FPNPlayer::_render() {
-        FPN_LOGI(LOG_TAG, "FPNPlayer render...");
         bool run = true;
         while(run) {
             switch (mMessage)
@@ -84,6 +84,7 @@ namespace fpn {
                 }
                 mMessage = MSG_NONE;
                 mRenderCond.notify_one();
+                mIsStarted = false;
                 run = false;
                 break;
             }
@@ -96,8 +97,16 @@ namespace fpn {
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 glViewport(0, 0, mWindow->getWidth(), mWindow->getHeight());
                 glDisable(GL_DEPTH_TEST);
-                //Begin draw
 #endif 
+                //Begin draw
+                if (!mIsStarted) {
+                    mCanvas.reset(new FPNCanvas());
+                    mIsStarted = true;
+                }
+                if (mCanvas) {
+                    mCanvas->paint();
+                }
+                
                 mWindow->notify(FLAG_WINDOW_PRERENT);
             }
         }

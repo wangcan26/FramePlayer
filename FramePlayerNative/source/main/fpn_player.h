@@ -8,6 +8,7 @@ namespace fpn
 {
     struct FPNContext;
     class FPNWindow;
+    class FPNCanvas;
     class FPNPlayer {
     public:
         FPNPlayer();
@@ -22,6 +23,7 @@ namespace fpn
     private:
         std::unique_ptr<FPNContext> mContext;
         std::unique_ptr<FPNWindow>  mWindow;
+        std::unique_ptr<FPNCanvas>  mCanvas;
         //Rendering Thread resources
         std::thread mRenderThread;
         std::mutex mRenderMutex;
@@ -35,6 +37,7 @@ namespace fpn
         };
         enum RenderMessage mMessage = RenderMessage::MSG_NONE;
         bool mIsPaused = false;
+        bool mIsStarted = false;
     };
 }
 

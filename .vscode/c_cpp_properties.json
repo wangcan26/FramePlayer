@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Win32_Android",
             "includePath": [
                 "${workspaceFolder}\\**",
                 "C:\\Users\\lenovo\\AppData\\Local\\Android\\Sdk\\ndk\\23.0.7599858\\toolchains\\llvm\\prebuilt\\windows-x86_64\\sysroot\\usr\\include",
@@ -9,9 +9,7 @@
                 "C:/Users/lenovo/AppData/Local/Android/Sdk/ndk/23.0.7599858/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/include/arm-linux-androideabi"
             ],
             "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
+                "TARGET_OS_ANDROID"
             ],
             "windowsSdkVersion": "10.0.26100.0",
             "compilerPath": "cl.exe",

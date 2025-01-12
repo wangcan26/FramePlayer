@@ -14,6 +14,11 @@ add_subdirectory(log)
 if(TARGET_OS_ANDROID)
     add_subdirectory(android)
 endif()
+if(BUILD_FPN_EXTRA)
+    add_subdirectory(extra/render)
+#    add_subdirectory(extra/producer)
+endif()
+
 add_subdirectory(main)
 
 
