@@ -189,7 +189,7 @@ namespace fpn
                 int frameIndex = (mCurIndex + 1) % gif->frame_count;
                 //decode Frame
                 FPNImageData image;
-                image.format = FPNImageFormat::RGB8Unorm;
+                image.format = FPNImageFormat::RGBA8Unorm;
                 image.width = gif->width;
                 image.height = gif->height;
                 int delay = getFrame(gif, frameIndex);

@@ -46,7 +46,10 @@ static const float kDefaultColor[] = {0, 1, 0, 1};
 
 namespace fpn 
 {
-    FPNCanvas::FPNCanvas() {
+    FPNCanvas::FPNCanvas(int width, int height): 
+        mWidth(width), 
+        mHeight(height) 
+    {
         _initialize();
     }
     FPNCanvas::~FPNCanvas() {
@@ -137,8 +140,6 @@ namespace fpn
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, 0);
         } while (0);
-        
-       
         RenderPipeline pipeline = chooseDefault? mDefaultPipeline: mTexturePipeline;
         glUseProgram(pipeline.program);
         if (chooseDefault) {
@@ -147,6 +148,8 @@ namespace fpn
             glBindTexture(GL_TEXTURE_2D, mTexture.texture);
             glUniform1i(pipeline.texture, 0);
         }
+
+        glUniformMatrix4fv(pipeline.transform, 1, GL_FALSE, mProjection);
 
         glVertexAttribPointer(pipeline.position, 3, GL_FLOAT, GL_FALSE, 0, kVertices);
         glEnableVertexAttribArray(pipeline.position);
@@ -161,6 +164,8 @@ namespace fpn
     }
 
     void FPNCanvas::_initialize() {
+        _orthoProjection();
+        
 #ifdef TARGET_OS_ANDROID
         glGenBuffers(1, &mGeometry.vertex);
         glBindBuffer(GL_ARRAY_BUFFER, mGeometry.vertex);
@@ -185,6 +190,7 @@ namespace fpn
         mDefaultPipeline.position = glGetAttribLocation(mDefaultPipeline.program, "vPosition");
         mDefaultPipeline.uv = glGetAttribLocation(mDefaultPipeline.program, "vUv");
         mDefaultPipeline.color = glGetUniformLocation(mDefaultPipeline.program, "uColor");
+        mDefaultPipeline.transform = glGetUniformLocation(mDefaultPipeline.program, "uTransform");
 
         mTexturePipeline.program = _createProgram(kVertexShader, kTextureShader);
         if(mTexturePipeline.program <= 0){
@@ -194,11 +200,46 @@ namespace fpn
         mTexturePipeline.position = glGetAttribLocation(mTexturePipeline.program, "vPosition");
         mTexturePipeline.uv = glGetAttribLocation(mTexturePipeline.program, "vUv");
         mTexturePipeline.texture = glGetUniformLocation(mTexturePipeline.program, "uTexture");
+        mTexturePipeline.transform = glGetUniformLocation(mDefaultPipeline.program, "uTransform");
 
 #endif 
         mIsInited = true;
     }
 
+    void FPNCanvas::_orthoProjection() {
+        bool isPortrait = mWidth < mHeight;
+        float actualAspect = isPortrait ? (float) mWidth / (float) mHeight : (float) mHeight / (float) mWidth;
+
+        float aspect = mHeight <= 0 ? 9.0/16.0: actualAspect;
+        float left = isPortrait? -1.0 * aspect : -1.0;
+        float right = isPortrait? 1.0 * aspect : 1.0;
+        float bottom = -1.0;
+        float top = 1.0;
+        float zNear = -1.0;
+        float zFar = 1.0;
+        float proj[16] = {
+            1.0, 0.0, 0.0, 0.0,
+            0.0, 1.0, 0.0, 0.0,
+            0.0, 0.0, 1.0, 0.0,
+            0.0, 0.0, 0.0, 1.0
+        };
+        float deltax = right - left;
+        float deltay = top - bottom;
+        float deltaz = zFar - zNear;
+        proj[0] = 2.0f / deltax;
+        proj[3] = -(right + left) / deltax;
+        proj[5] = 2.0f / deltay;
+        proj[7] = -(top + bottom) /deltay;
+        proj[10] = 2.0f / deltaz;
+        proj[11] = -(zFar + zNear) /deltaz;
+        memcpy(mProjection, proj, sizeof(float) * 16);
+        FPN_LOGE(LOG_TAG, "aspect: %f, projection:\n[%f, %f, %f, %f, \n%f, %f, %f, %f\n%f, %f, %f, %f\n%f, %f, %f, %f]",
+            aspect, 
+            mProjection[0], mProjection[1], mProjection[2], mProjection[3],
+            mProjection[4], mProjection[5], mProjection[6], mProjection[7],
+            mProjection[8], mProjection[9], mProjection[10], mProjection[11],
+            mProjection[12], mProjection[13], mProjection[14], mProjection[15]);
+    }
 #ifdef TARGET_OS_ANDROID
     void FPNCanvas::_checkGLError(const char *op) {
         for (GLint error = glGetError(); error; error = glGetError()) {

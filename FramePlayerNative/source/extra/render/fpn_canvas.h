@@ -35,6 +35,7 @@ namespace fpn
         GLuint uv;
         GLuint color;
         GLuint texture;
+        GLuint transform;
 #endif 
     };
 
@@ -46,7 +47,7 @@ namespace fpn
     class FPNCanvas
     {
     public:
-        FPNCanvas();
+        FPNCanvas(int width, int height);
         virtual ~FPNCanvas();
 
         //must be called in render thread
@@ -59,6 +60,7 @@ namespace fpn
         void opaque(struct FPNImageData* data);
     private:
         void _initialize();
+        void _orthoProjection();
 #ifdef TARGET_OS_ANDROID
         GLuint _createProgram(const char* vertex_source, const char* fragment_source);
         GLuint _loaderShader(GLenum shader_type, const char *source);
@@ -71,6 +73,8 @@ namespace fpn
         struct TextureBuffer mTexture;
         struct RenderPipeline mDefaultPipeline;
         struct RenderPipeline mTexturePipeline;
+
+        float mProjection[16];
         
         std::mutex mCanvasMutex;
         //image data queue
@@ -79,6 +83,8 @@ namespace fpn
         int mReadIndex =  -1;
         int mWriteIndex = -1;
         bool mCreateTexture = true;
+        int mWidth;
+        int mHeight;
     };
 }
 

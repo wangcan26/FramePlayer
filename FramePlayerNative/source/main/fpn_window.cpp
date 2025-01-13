@@ -127,7 +127,7 @@ namespace fpn
         mContext->config = config;
 #endif 
         mWindowInited = true;
-        FPN_LOGI(LOG_TAG,"Render Window is Created!");
+        FPN_LOGI(LOG_TAG,"Render Window is Created: [%d, %d]", mWidth, mHeight);
         return true;
     }
 
@@ -167,6 +167,7 @@ namespace fpn
             return false;
         }
 #endif 
+        FPN_LOGI(LOG_TAG,"Render Window is Resized: [%d, %d]", mWidth, mHeight);
         return true;
     }
 

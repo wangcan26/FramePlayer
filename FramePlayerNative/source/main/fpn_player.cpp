@@ -122,7 +122,7 @@ namespace fpn {
                 //Begin draw
                 if (!mIsReady && mStarted) {
 #ifdef FPN_USE_EXTRA_RENDER
-                    mCanvas.reset(new FPNCanvas());
+                    mCanvas.reset(new FPNCanvas(mWindow->getWidth(), mWindow->getHeight()));
 #endif
 #ifdef FPN_USE_EXTRA_PRODUCER
                     mGifProducer.reset(new FPNGifProducer(mContentUri, this));
