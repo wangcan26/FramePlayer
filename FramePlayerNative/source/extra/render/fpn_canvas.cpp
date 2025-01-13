@@ -110,7 +110,7 @@ namespace fpn
 
     void FPNCanvas::paint() {
         if (!mIsInited) return;
-#ifdef TARGET_OS_ANDROID
+#ifdef FPN_USE_OPENGL_API
         bool chooseDefault = mReadIndex == -1;
         //upload
         do {
@@ -166,7 +166,7 @@ namespace fpn
     void FPNCanvas::_initialize() {
         _orthoProjection();
         
-#ifdef TARGET_OS_ANDROID
+#ifdef FPN_USE_OPENGL_API
         glGenBuffers(1, &mGeometry.vertex);
         glBindBuffer(GL_ARRAY_BUFFER, mGeometry.vertex);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * 4, kVertices, GL_STATIC_DRAW);
@@ -240,7 +240,7 @@ namespace fpn
             mProjection[8], mProjection[9], mProjection[10], mProjection[11],
             mProjection[12], mProjection[13], mProjection[14], mProjection[15]);
     }
-#ifdef TARGET_OS_ANDROID
+#ifdef FPN_USE_OPENGL_API
     void FPNCanvas::_checkGLError(const char *op) {
         for (GLint error = glGetError(); error; error = glGetError()) {
             FPN_LOGE(LOG_TAG,"nv log renderer after %s() glError (0x%x)\n", op, error);

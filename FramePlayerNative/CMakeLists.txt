@@ -11,5 +11,6 @@ include(${${PRODUCT}_ROOT}/cmake/common.cmake)
 message("CMake Created: RootDir is" ${${PRODUCT}_ROOT})
 
 option(BUILD_FPN_EXTRA "Build fpn extra capabilities" OFF)
+option(BUILD_FPN_ENABLE_OPENGL_API "Build fpn opengl capabilities" ON)
 
 add_subdirectory(source)

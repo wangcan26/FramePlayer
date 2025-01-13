@@ -9,10 +9,12 @@
 #include "extra/producer/fpn_gif_producer.h"
 #endif 
 
+#ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #endif
+#endif 
 
 #define LOG_TAG "FPNPlayer"
 
@@ -113,12 +115,14 @@ namespace fpn {
                 break;
             }
             if (mWindow->isValid() && !mIsPaused) {
+#ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID   
                 glClearColor(1.0, 0.0, 0.0, 1.0);
                 glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
                 glViewport(0, 0, mWindow->getWidth(), mWindow->getHeight());
                 glDisable(GL_DEPTH_TEST);
-#endif 
+#endif
+#endif  
                 //Begin draw
                 if (!mIsReady && mStarted) {
 #ifdef FPN_USE_EXTRA_RENDER

@@ -10,6 +10,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-rtti")
 
 include_directories(PUBLIC ${SOURCE_ROOT_DIR})
 
+if(BUILD_FPN_ENABLE_OPENGL_API)
+    add_definitions(-DFPN_USE_OPENGL_API=1)
+endif()
+
 add_subdirectory(log)
 if(TARGET_OS_ANDROID)
     add_subdirectory(android)

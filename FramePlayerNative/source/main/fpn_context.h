@@ -25,10 +25,12 @@ namespace fpn
 #if TARGET_OS_ANDROID
         ANativeWindow         *window    = nullptr;
 
+#ifdef FPN_USE_OPENGL_API
         EGLDisplay  display;
         EGLSurface  surface;
         EGLContext  context;
         EGLConfig   config;
+#endif 
 #else 
         void                 *window = nullptr;
 #endif

@@ -3,10 +3,12 @@
 #include <string>
 #include <vector>
 #include <thread>
+#ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #endif
+#endif 
 #include "main/fpn_context.h"
 
 #define FPN_IMAGE_BUFFER_SIZE_MAX 2 
@@ -14,22 +16,22 @@
 namespace fpn 
 {
     struct VertexBuffer {
-#ifdef TARGET_OS_ANDROID
+#ifdef FPN_USE_OPENGL_API
         GLuint vertex;
         GLuint uv;
         GLuint indice;
-#endif   
+#endif  
     };
 
     struct TextureBuffer {
-#ifdef TARGET_OS_ANDROID
+#ifdef FPN_USE_OPENGL_API
         GLuint texture;
-#endif 
+#endif  
     };
 
     struct RenderPipeline
     {
-#ifdef TARGET_OS_ANDROID
+#ifdef FPN_USE_OPENGL_API
         GLuint program;
         GLuint position;
         GLuint uv;
@@ -61,7 +63,8 @@ namespace fpn
     private:
         void _initialize();
         void _orthoProjection();
-#ifdef TARGET_OS_ANDROID
+
+#ifdef FPN_USE_OPENGL_API
         GLuint _createProgram(const char* vertex_source, const char* fragment_source);
         GLuint _loaderShader(GLenum shader_type, const char *source);
         void _checkGLError(const char *op);

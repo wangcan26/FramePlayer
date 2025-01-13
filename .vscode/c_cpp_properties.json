@@ -10,6 +10,7 @@
             ],
             "defines": [
                 "TARGET_OS_ANDROID",
+                "FPN_USE_OPENGL_API",
                 "FPN_USE_EXTRA_RENDER",
                 "FPN_USE_EXTRA_PRODUCER"
             ],

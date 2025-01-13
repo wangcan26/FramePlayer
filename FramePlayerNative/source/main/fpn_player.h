@@ -28,7 +28,7 @@ namespace fpn
         void makeCurrent();
         FPNContext *getContext() const;
 
-        //The {FrameImageData}data will be copied and cached to enable efficient asynchronous execution
+        //The {FPNImageData} data will be copied and cached to enable efficient asynchronous execution
         //between cpu and gpu.
         //Avoid to change width, height or foramt of the data for performance.
         void frame(struct FPNImageData* data);
