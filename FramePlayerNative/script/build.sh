@@ -87,5 +87,9 @@ function copy_frameplayer_lib_to_app() {
 }
 
 build_frameplayer_lib_for_abi arm64-v8a Release
-copy_frameplayer_lib_to_app arm64-v8a Release
+
+if [ ! "$build_target" = "main" ]; then
+  copy_frameplayer_lib_to_app arm64-v8a Release
+fi 
+
 
