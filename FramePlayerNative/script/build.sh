@@ -1,5 +1,8 @@
 base_path=$(cd `dirname $0`; pwd)
 
+build_target=$1 #mono main
+echo "build as $build_target"
+
 ## requirements:
 ### cmake
 ### ninja
@@ -33,17 +36,37 @@ function build_frameplayer_lib_for_abi() {
       mkdir -p $abs_path_build
     fi
 
+    echo "build target: $build_target"
+    if [ "$build_target" = "main" ]; then
+      build_lib=ON
+    else
+      build_lib=OFF
+    fi 
+
+    local abs_path_install=$base_path/../install
+    if [ ! -d "$abs_path_install" ]; then
+    #   echo "mkdir: cmake_build"
+      mkdir -p $abs_path_install
+    fi
+
+    echo "build frameplayer for lib? $build_lib"
     # exit 0
     cmake -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK/build/cmake/android.toolchain.cmake \
+        -DCMAKE_INSTALL_PREFIX=$abs_path_install   \
         -DCMAKE_BUILD_TYPE=$2 \
         -DANDROID_ABI=$1 \
         -DANDROID_PLATFORM=android-28 \
         -DBUILD_FPN_EXTRA=ON              \
+        -DBUILD_FPN_LIBRARY=$build_lib  \
         -G Ninja \
         -B $abs_path_build -S $base_path/../ || exit 1
          \
 
     cmake --build $abs_path_build
+
+    if [ $build_lib=ON ]; then 
+      cmake --install $abs_path_build
+    fi 
 }
 
 function copy_frameplayer_lib_to_app() {
