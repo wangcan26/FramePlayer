@@ -33,7 +33,7 @@ static auto kTextureShader =
         "}\n";
 
 static auto kGreenMattingShader = 
-        "precision mediump float;\n"
+        "precision highp float;\n"
         "varying vec2 oUv;\n"
         "uniform sampler2D uTexture;\n"
         "uniform vec3 uKeyColor;\n"
@@ -55,7 +55,7 @@ static auto kGreenMattingShader =
         "   color.a = fullMask;\n"
         "   float spillVal = pow(clamp(baseMask/uSpill, 0., 1.), 1.5);\n"
         "   float desat = clamp(color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722, 0., 1.);\n"
-        "   color.rgb = mix(vec3(desat), color.bgr, spillVal);\n"
+        "   color.bgr = mix(vec3(desat), color.rgb, spillVal);\n"
         "   gl_FragColor = color;\n"
         "}\n";
 
@@ -69,8 +69,8 @@ static auto kGreenMattingShader1 =
         "uniform float uSpill;\n"
         "void main() {\n"
         "   vec4 color = texture2D(uTexture, oUv);\n"
-        "   float mask = smoothstep(uSimilarity, uSimilarity + 0.1, length(color.rgb - uKeyColor));\n"
-        "   gl_FragColor = vec4(color.rgb, mask);\n"
+        "   float mask = smoothstep(uSimilarity - 0.1, uSimilarity + 0.1, distance(color.rgb, uKeyColor));\n"
+        "   gl_FragColor = vec4(vec3(mask), 1.0);\n"
         "}\n";
 
 static const GLfloat kVertices[] = {
@@ -248,7 +248,7 @@ namespace fpn
         mDefaultPipeline.transform = glGetUniformLocation(mDefaultPipeline.program, "uTransform");
 
         if (mOptions.green_matting) {
-            mTexturePipeline.program = _createProgram(kVertexShader, kGreenMattingShader1);
+            mTexturePipeline.program = _createProgram(kVertexShader, kGreenMattingShader);
         } else {
             mTexturePipeline.program = _createProgram(kVertexShader, kTextureShader);
         }

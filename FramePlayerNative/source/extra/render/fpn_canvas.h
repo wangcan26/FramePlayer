@@ -56,9 +56,11 @@ namespace fpn
     public: 
         struct Options {
             bool green_matting = true;
-            float green_matting_similarity = 0.35;
-            float green_matting_smoothness = 0.05;
-            float green_matting_spill = 0.05;
+            //value bigger, the foreground is bigger
+            float green_matting_similarity = 0.45;
+            //value bigger, the alpha is more
+            float green_matting_smoothness = 0.1;
+            float green_matting_spill = 0.08;
         };
         static const struct Options NullOpt;
     public:
