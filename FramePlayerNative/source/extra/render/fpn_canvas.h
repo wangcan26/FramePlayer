@@ -38,6 +38,11 @@ namespace fpn
         GLuint color;
         GLuint texture;
         GLuint transform;
+        //green matting
+        GLuint keyColor;
+        GLuint similarity;
+        GLuint smoothness;
+        GLuint spill;
 #endif 
     };
 
@@ -48,8 +53,16 @@ namespace fpn
      */
     class FPNCanvas
     {
+    public: 
+        struct Options {
+            bool green_matting = true;
+            float green_matting_similarity = 0.35;
+            float green_matting_smoothness = 0.05;
+            float green_matting_spill = 0.05;
+        };
+        static const struct Options NullOpt;
     public:
-        FPNCanvas(int width, int height);
+        FPNCanvas(int width, int height, struct Options options = NullOpt);
         virtual ~FPNCanvas();
 
         //must be called in render thread
@@ -88,6 +101,8 @@ namespace fpn
         bool mCreateTexture = true;
         int mWidth;
         int mHeight;
+
+        struct Options mOptions;
     };
 }
 

@@ -32,6 +32,47 @@ static auto kTextureShader =
         "   gl_FragColor = color;\n"
         "}\n";
 
+static auto kGreenMattingShader = 
+        "precision mediump float;\n"
+        "varying vec2 oUv;\n"
+        "uniform sampler2D uTexture;\n"
+        "uniform vec3 uKeyColor;\n"
+        "uniform float uSmoothness;\n"
+        "uniform float uSimilarity;\n"
+        "uniform float uSpill;\n"
+        "vec2 RGB2UV(vec3 rgb) {\n"
+        "   return vec2(\n"
+        "       rgb.r * -0.169 + rgb.g * -0.331 + rgb.b * 0.5 + 0.5,\n"
+        "       rgb.r * 0.5 + rgb.g * -0.419 + rgb.b * -0.081 + 0.5\n"
+        "   );\n"
+        "}\n"
+        "void main() {\n"
+        "   vec4 color = texture2D(uTexture, oUv).bgra;\n"
+        "   vec2 chromaVec = RGB2UV(color.rgb) - RGB2UV(uKeyColor);\n"
+        "   float chromaDist = sqrt(dot(chromaVec, chromaVec));\n"
+        "   float baseMask = chromaDist - uSimilarity;\n"
+        "   float fullMask = pow(clamp(baseMask/uSmoothness, 0., 1.), 1.5);\n"
+        "   color.a = fullMask;\n"
+        "   float spillVal = pow(clamp(baseMask/uSpill, 0., 1.), 1.5);\n"
+        "   float desat = clamp(color.r * 0.2126 + color.g * 0.7152 + color.b * 0.0722, 0., 1.);\n"
+        "   color.rgb = mix(vec3(desat), color.bgr, spillVal);\n"
+        "   gl_FragColor = color;\n"
+        "}\n";
+
+static auto kGreenMattingShader1 = 
+        "precision mediump float;\n"
+        "varying vec2 oUv;\n"
+        "uniform sampler2D uTexture;\n"
+        "uniform vec3 uKeyColor;\n"
+        "uniform float uSmoothness;\n"
+        "uniform float uSimilarity;\n"
+        "uniform float uSpill;\n"
+        "void main() {\n"
+        "   vec4 color = texture2D(uTexture, oUv);\n"
+        "   float mask = smoothstep(uSimilarity, uSimilarity + 0.1, length(color.rgb - uKeyColor));\n"
+        "   gl_FragColor = vec4(color.rgb, mask);\n"
+        "}\n";
+
 static const GLfloat kVertices[] = {
                                 -1.0f, -1.0f, 0.0f,
                                 -1.0f, 1.0f,  0.0f,
@@ -43,12 +84,15 @@ static const GLfloat kUvs[] = {0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0};
 static const GLushort kIndices[] = {0, 3, 1, 1, 3, 2};
 
 static const float kDefaultColor[] = {0, 1, 0, 1};
+static const float kSelectColor[] = {0, 1, 0};
 
 namespace fpn 
 {
-    FPNCanvas::FPNCanvas(int width, int height): 
+    const struct FPNCanvas::Options FPNCanvas::NullOpt;
+    FPNCanvas::FPNCanvas(int width, int height, struct Options options): 
         mWidth(width), 
-        mHeight(height) 
+        mHeight(height),
+        mOptions(options) 
     {
         _initialize();
     }
@@ -151,6 +195,13 @@ namespace fpn
         } else {
             glBindTexture(GL_TEXTURE_2D, mTexture.texture);
             glUniform1i(pipeline.texture, 0);
+
+            if (mOptions.green_matting) {
+                glUniform3fv(pipeline.keyColor, 1, kSelectColor);
+                glUniform1f(pipeline.similarity, mOptions.green_matting_similarity);
+                glUniform1f(pipeline.smoothness, mOptions.green_matting_smoothness);
+                glUniform1f(pipeline.spill, mOptions.green_matting_spill);
+            }
         }
 
         glUniformMatrix4fv(pipeline.transform, 1, GL_FALSE, mProjection);
@@ -196,7 +247,12 @@ namespace fpn
         mDefaultPipeline.color = glGetUniformLocation(mDefaultPipeline.program, "uColor");
         mDefaultPipeline.transform = glGetUniformLocation(mDefaultPipeline.program, "uTransform");
 
-        mTexturePipeline.program = _createProgram(kVertexShader, kTextureShader);
+        if (mOptions.green_matting) {
+            mTexturePipeline.program = _createProgram(kVertexShader, kGreenMattingShader1);
+        } else {
+            mTexturePipeline.program = _createProgram(kVertexShader, kTextureShader);
+        }
+        
         if(mTexturePipeline.program <= 0){
             FPN_LOGE(LOG_TAG, "FPNCanvas Could not create texture program.");
             return;
@@ -205,7 +261,13 @@ namespace fpn
         mTexturePipeline.uv = glGetAttribLocation(mTexturePipeline.program, "vUv");
         mTexturePipeline.texture = glGetUniformLocation(mTexturePipeline.program, "uTexture");
         mTexturePipeline.transform = glGetUniformLocation(mDefaultPipeline.program, "uTransform");
-
+        if (mOptions.green_matting) {
+            mTexturePipeline.keyColor = glGetUniformLocation(mTexturePipeline.program, "uKeyColor");
+            mTexturePipeline.similarity = glGetUniformLocation(mTexturePipeline.program, "uSimilarity");
+            mTexturePipeline.smoothness = glGetUniformLocation(mTexturePipeline.program, "uSmoothness");
+            mTexturePipeline.spill = glGetUniformLocation(mTexturePipeline.program, "uSpill");
+        }
+        
 #endif 
         mIsInited = true;
     }
