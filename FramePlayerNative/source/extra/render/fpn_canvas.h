@@ -59,7 +59,7 @@ namespace fpn
             //value bigger, the foreground is bigger
             float green_matting_similarity = 0.45;
             //value bigger, the alpha is more
-            float green_matting_smoothness = 0.1;
+            float green_matting_smoothness = 0.08;
             float green_matting_spill = 0.08;
         };
         static const struct Options NullOpt;
