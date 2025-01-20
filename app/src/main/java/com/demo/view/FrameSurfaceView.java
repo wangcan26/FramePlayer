@@ -2,6 +2,7 @@ package com.demo.view;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -35,6 +36,8 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
     public void init(Activity activity) {
         mSurfaceHolder = this.getHolder();
         mSurfaceHolder.addCallback(this);
+        mSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
+        //this.setZOrderOnTop(true);
         mSurfaceHolder.setKeepScreenOn(true);
 
         mPlayer = new FPNPlayer();
