@@ -42,20 +42,25 @@ namespace fpn {
 
     void FPNPlayer::makeCurrent() {
         std::unique_lock<std::mutex> rm(mRenderMutex);
-        if (mContext && mContext->window)
-        {
-            mWindow->attach(mContext.get());
-            mIsPaused = false;
-            if (mWindow->isValid()) {
-                mMessage = MSG_WINDOW_UPDATE;
-                return;
+        mMessage = MSG_NONE;
+        do {
+            if (mContext && mContext->window)
+            {
+                mWindow->attach(mContext.get());
+                mIsPaused = false;
+                if (mWindow->isValid()) {
+                    mMessage = MSG_WINDOW_UPDATE;
+                    break;
+                }
+                mMessage = MSG_WINDOW_CREATE;
+            } else {
+                mIsPaused = true;
+                mMessage = MSG_WINDOW_DESTROY;
             }
-            mMessage = MSG_WINDOW_CREATE;
-        } else {
-            mIsPaused = true;
-            mMessage = MSG_WINDOW_DESTROY;
+        } while (0);
+        if (mMessage != MSG_NONE && mStarted) {
+            mRenderCond.wait(rm);
         }
-        mRenderCond.wait(rm);
     }
 
     FPNContext* FPNPlayer::getContext() const  {return mContext.get();}

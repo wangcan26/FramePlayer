@@ -98,11 +98,12 @@ namespace fpn
     }
     FPNCanvas::~FPNCanvas() {
         std::lock_guard<std::mutex> rm(mCanvasMutex);
-        if (!mBufferWind) {
+        if (mWriteIndex != -1) {
             for (int i = 0; i < FPN_IMAGE_BUFFER_SIZE_MAX; i++) {
                 FPNImageData& buffer = mImageBuffers[mWriteIndex];
                 free(buffer.data);
             }
+            mWriteIndex = mReadIndex = -1;
         }
     }
 

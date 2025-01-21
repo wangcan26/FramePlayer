@@ -8,7 +8,6 @@ namespace fpn
 {
     FPNWindow::FPNWindow() {}
     FPNWindow::~FPNWindow() {
-        _onDestroy();
         mContext = nullptr;
     }
 

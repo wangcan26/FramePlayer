@@ -39,7 +39,8 @@
         "__split_buffer": "cpp",
         "iterator": "cpp",
         "map": "cpp",
-        "xiosbase": "cpp"
+        "xiosbase": "cpp",
+        "atomic": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
