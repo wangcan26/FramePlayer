@@ -100,7 +100,7 @@ namespace fpn
         std::lock_guard<std::mutex> rm(mCanvasMutex);
         if (mWriteIndex != -1) {
             for (int i = 0; i < FPN_IMAGE_BUFFER_SIZE_MAX; i++) {
-                FPNImageData& buffer = mImageBuffers[mWriteIndex];
+                FPNImageData& buffer = mImageBuffers[i];
                 free(buffer.data);
             }
             mWriteIndex = mReadIndex = -1;

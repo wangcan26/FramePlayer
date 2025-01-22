@@ -67,7 +67,7 @@ namespace fpn {
 
     void FPNPlayer::frame(struct FPNImageData* data) {
 #ifdef FPN_USE_EXTRA_RENDER
-        if (mCanvas) {
+        if (mCanvas && !mIsPaused) {
             mCanvas->opaque(data);
         }
 #endif 
