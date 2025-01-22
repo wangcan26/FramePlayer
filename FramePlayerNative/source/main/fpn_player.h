@@ -60,6 +60,9 @@ namespace fpn
         bool mIsReady = false;
         bool mStarted = false;
         std::string mContentUri;
+
+        //options 
+        bool mTransparent = true;
     };
 }
 

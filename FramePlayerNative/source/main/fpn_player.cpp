@@ -123,8 +123,9 @@ namespace fpn {
 #ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID   
                 glDisable(GL_DEPTH_TEST);
-                glEnable(GL_BLEND);
-                //glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+                if (mTransparent) {
+                    glEnable(GL_BLEND);
+                }
                 glClearColor(1.0, 0.0, 0.0, 0.0);
                 glClear(GL_COLOR_BUFFER_BIT); //
                 glViewport(0, 0, mWindow->getWidth(), mWindow->getHeight());
