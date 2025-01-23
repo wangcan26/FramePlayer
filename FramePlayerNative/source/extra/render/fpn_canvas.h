@@ -61,6 +61,8 @@ namespace fpn
             //value bigger, the alpha is more
             float green_matting_smoothness = 0.08;
             float green_matting_spill = 0.08;
+            //make surface transparent defaulty
+            bool transparent = true;
         };
         static const struct Options NullOpt;
     public:

@@ -154,8 +154,11 @@ namespace fpn {
                 mWindow->notify(FLAG_WINDOW_PRERENT);
             }
 #ifdef FPN_USE_EXTRA_PRODUCER
-            if (mGifProducer) {
-                mIsPaused? mGifProducer->pause() : mGifProducer->resume();
+            if (mFrameCount < 10) {
+                if (mGifProducer) {
+                    mIsPaused? mGifProducer->pause() : mGifProducer->resume();
+                }
+                mFrameCount++;
             }
 #endif 
         }

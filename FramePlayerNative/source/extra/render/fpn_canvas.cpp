@@ -83,7 +83,8 @@ static const GLfloat kUvs[] = {0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0};
 
 static const GLushort kIndices[] = {0, 3, 1, 1, 3, 2};
 
-static const float kDefaultColor[] = {0, 1, 0, 1};
+static const float kTransparentColor[] = {0, 0, 0, 0};
+static const float kDefaultColor[] = {0, 0, 0, 1};
 static const float kSelectColor[] = {0, 1, 0};
 
 namespace fpn 
@@ -192,7 +193,7 @@ namespace fpn
         RenderPipeline pipeline = chooseDefault? mDefaultPipeline: mTexturePipeline;
         glUseProgram(pipeline.program);
         if (chooseDefault) {
-            glUniform4fv(pipeline.color, 1, kDefaultColor);
+            glUniform4fv(pipeline.color, 1, mOptions.transparent ? kTransparentColor : kDefaultColor);
         } else {
             glBindTexture(GL_TEXTURE_2D, mTexture.texture);
             glUniform1i(pipeline.texture, 0);
@@ -268,7 +269,6 @@ namespace fpn
             mTexturePipeline.smoothness = glGetUniformLocation(mTexturePipeline.program, "uSmoothness");
             mTexturePipeline.spill = glGetUniformLocation(mTexturePipeline.program, "uSpill");
         }
-        
 #endif 
         mIsInited = true;
     }

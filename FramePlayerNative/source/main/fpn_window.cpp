@@ -83,11 +83,6 @@ namespace fpn
             FPN_LOGE(LOG_TAG,"eglGetDisplay() returned error %d", eglGetError());
             return false;
         }
-        if( (display =eglGetDisplay(EGL_DEFAULT_DISPLAY)) == EGL_NO_DISPLAY )
-        {
-            FPN_LOGE(LOG_TAG,"eglGetDisplay() returned error %d", eglGetError());
-            return false;
-        }
         if(!eglChooseConfig(display, attribs, &config, 1, &numConfigs))
         {
             FPN_LOGE(LOG_TAG,"eglChooseConfig() returned error %d", eglGetError());

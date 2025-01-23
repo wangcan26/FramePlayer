@@ -63,6 +63,7 @@ namespace fpn
 
         //options 
         bool mTransparent = true;
+        int mFrameCount = 0;
     };
 }
 
