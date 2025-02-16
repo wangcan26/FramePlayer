@@ -121,7 +121,7 @@ namespace fpn
     FPNGifProducer::FPNGifProducer(const std::string& uri, FPNPlayer* player)
     {
         mPlayer = player;
-        mGifFilePath = uri + std::string("/gif/output_540.gif");
+        mGifFilePath = uri + std::string("/gif/testGif.gif");
         mIsRunning = true;
         mDecoderThread = std::thread(&FPNGifProducer::_decode, this);
     }
