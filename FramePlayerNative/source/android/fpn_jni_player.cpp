@@ -26,7 +26,11 @@ static long player_create(JNIEnv* jenv, jobject obj) {
 
 static void player_release(JNIEnv* jenv, jobject obj, jlong handle) {
     FPN_LOGI(LOG_TAG, "player released");
-    m_players[handle] = nullptr;
+    fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
+    if (player) {
+        player->release();
+    }
+    FPN_LOGI(LOG_TAG, "player released end");
 }
 
 static void player_start(JNIEnv* jenv, jobject obj, jlong handle) {
@@ -48,11 +52,14 @@ static void player_set_surface(JNIEnv* jenv, jobject obj, jlong handle, jobject 
     if (surface != 0) {
         ANativeWindow *window = ANativeWindow_fromSurface(jenv, surface);
         player->getContext()->window = window;
+        player->makeCurrent();
     } else {
-        ANativeWindow_release(player->getContext()->window);
+        ANativeWindow *window = player->getContext()->window;
         player->getContext()->window = nullptr;
+        player->makeCurrent();
+        ANativeWindow_release(player->getContext()->window);
     }
-    player->makeCurrent();
+    FPN_LOGI(LOG_TAG, "player set surface end");
 }
 
 #ifdef __cplusplus

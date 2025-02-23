@@ -32,11 +32,13 @@ namespace fpn
         //between cpu and gpu.
         //Avoid to change width, height or foramt of the data for performance.
         void frame(struct FPNImageData* data);
+
+        void release();
     private:
         void _render();
 
     private:
-        std::unique_ptr<FPNContext> mContext;
+        std::shared_ptr<FPNContext> mContext;
         std::unique_ptr<FPNWindow>  mWindow;
 #ifdef FPN_USE_EXTRA_RENDER
         std::unique_ptr<FPNCanvas>  mCanvas;

@@ -83,8 +83,8 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
 
 void JNI_OnUnload(JavaVM *vm, void *reserved)
 {
+    FPN_LOGI(LOG_TAG, "jni onUnLoad...");
     remove_jni_classes();
-    FPN_LOGI(LOG_TAG, "jni onLoad successful");
 }
 
 #ifdef __cplusplus

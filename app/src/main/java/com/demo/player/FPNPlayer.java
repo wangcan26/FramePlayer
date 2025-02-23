@@ -1,4 +1,5 @@
 package com.demo.player;
+import android.util.Log;
 import android.view.Surface;
 
 /**
@@ -10,18 +11,28 @@ public class FPNPlayer {
     private long mHandle = -1;
     public FPNPlayer() {
         mHandle = nativeCreate();
+        Log.i("FPNPlayer", "JavaFPNPlayer create ");
     }
 
     public void setContentUri(String uri) {
-        nativeSetContentUri(mHandle, uri);
+        if (mHandle != -1) {
+            nativeSetContentUri(mHandle, uri);
+        }
+        Log.i("FPNPlayer", "JavaFPNPlayer set content: " + uri);
     }
 
     public void start() {
-        nativeStart(mHandle);
+        if (mHandle != -1) {
+            nativeStart(mHandle);
+        }
+        Log.i("FPNPlayer", "JavaFPNPlayer start");
     }
 
     public void setSurface(Surface surface) {
-        nativeSetSurface(mHandle, surface);
+        if (mHandle != -1) {
+            nativeSetSurface(mHandle, surface);
+        }
+        Log.i("FPNPlayer", "JavaFPNPlayer setSurface");
     }
 
     public long handle() {
@@ -29,6 +40,7 @@ public class FPNPlayer {
     }
 
     public void release() {
+        Log.i("FPNPlayer", "JavaFPNPlayer release");
         if (mHandle != -1) {
             nativeRelease(mHandle);
             mHandle = -1;

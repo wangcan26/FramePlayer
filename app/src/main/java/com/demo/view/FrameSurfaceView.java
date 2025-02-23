@@ -53,14 +53,17 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
         assert (dir.exists() && dir.isDirectory());
         String uri = externalStorageVolumes[0].getAbsolutePath();
         Log.i(TAG, "asset dir url: " + uri);
-        mPlayer.setContentUri(uri);
+        if (mPlayer != null) {
+            mPlayer.setContentUri(uri);
 
-        //start
-        mPlayer.start();
+            //start
+            mPlayer.start();
+        }
     }
 
     public void onDestroy() {
         if (mPlayer != null) {
+            Log.i(TAG, "SurfaceViewLifecycle: onDestroy");
             mPlayer.release();
         }
     }
@@ -72,11 +75,18 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
 
     @Override
     public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
-        mPlayer.setSurface(mSurfaceHolder.getSurface());
+        if (mPlayer != null) {
+            //mPlayer.setSurface(mSurfaceHolder.getSurface());
+        }
+
+        Log.i(TAG, "SurfaceViewLifecycle: surfaceChanged");
     }
 
     @Override
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
-        mPlayer.setSurface(null);
+        Log.i(TAG, "SurfaceViewLifecycle: surfaceDestroyed");
+        if (mPlayer != null) {
+            //mPlayer.setSurface(null);
+        }
     }
 }

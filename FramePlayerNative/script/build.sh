@@ -86,10 +86,10 @@ function copy_frameplayer_lib_to_app() {
   echo "install scucess"
 }
 
-build_frameplayer_lib_for_abi arm64-v8a Release
+build_frameplayer_lib_for_abi arm64-v8a Debug
 
 if [ ! "$build_target" = "main" ]; then
-  copy_frameplayer_lib_to_app arm64-v8a Release
+  copy_frameplayer_lib_to_app arm64-v8a Debug
 fi 
 
 

@@ -20,16 +20,23 @@
 
 namespace fpn {
     FPNPlayer::FPNPlayer() {
-        mContext.reset(new FPNContext());
+        mContext = std::shared_ptr<FPNContext>(new FPNContext());
         mWindow.reset(new FPNWindow());
+        mWindow->attach(mContext);
         mRenderThread = std::thread(&FPNPlayer::_render, this);
     }
 
     FPNPlayer::~FPNPlayer() {
+        
+    }
+
+    void FPNPlayer::release() {
         mMessage = MSG_LOOP_EXIT;
+        FPN_LOGI(LOG_TAG,"FPN_Lifecyle: Player is Released");
         if(mRenderThread.joinable()) {
             mRenderThread.join();
         }
+        FPN_LOGI(LOG_TAG,"FPN_Lifecyle: Player is Released end");
     }
 
     void FPNPlayer::setContentUri(const std::string& uri) {
@@ -46,7 +53,6 @@ namespace fpn {
         do {
             if (mContext && mContext->window)
             {
-                mWindow->attach(mContext.get());
                 mIsPaused = false;
                 if (mWindow->isValid()) {
                     mMessage = MSG_WINDOW_UPDATE;
@@ -107,7 +113,7 @@ namespace fpn {
             case MSG_LOOP_EXIT:
             {
                 std::lock_guard<std::mutex> rm(mRenderMutex);
-                if (mWindow && mWindow->isValid()) {
+                if (mWindow) {
                     mWindow->notify(FLAG_WINDOW_DESTROY);
                 }
                 mMessage = MSG_NONE;
@@ -133,14 +139,15 @@ namespace fpn {
                 
 #endif
 #endif  
+                return;
                 //Begin draw
                 if (!mIsReady && mStarted) {
 #ifdef FPN_USE_EXTRA_RENDER
                     mCanvas.reset(new FPNCanvas(mWindow->getWidth(), mWindow->getHeight()));
 #endif
 #ifdef FPN_USE_EXTRA_PRODUCER
-                    mGifProducer.reset(new FPNGifProducer(mContentUri, this));
-                    mGifProducer->start();
+                    //mGifProducer.reset(new FPNGifProducer(mContentUri, this));
+                    //mGifProducer->start();
 #endif 
                     mIsReady = true;
                 }
