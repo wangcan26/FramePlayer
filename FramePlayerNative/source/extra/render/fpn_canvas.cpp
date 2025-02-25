@@ -5,7 +5,7 @@
 
 #define FPN_TEST_TRIANGLE 1
 
-/*static auto kVertexShader =
+static auto kVertexShader =
         "attribute vec4 vPosition;\n"
         "attribute vec2 vUv;\n"
         "varying vec2 oUv;\n"
@@ -86,31 +86,31 @@ static const GLushort kIndices[] = {0, 3, 1, 1, 3, 2};
 static const float kTransparentColor[] = {0, 0, 0, 0};
 static const float kDefaultColor[] = {0, 0, 0, 1};
 static const float kSelectColor[] = {0, 1, 0};
-*/
+
 namespace fpn 
 {
-    //const struct FPNCanvas::Options FPNCanvas::NullOpt;
-    FPNCanvas::FPNCanvas(int width, int height/*, struct Options options*/)
-        //:
-        //mWidth(width), 
-        //mHeight(height)
-        //mOptions(options) 
+    const struct FPNCanvas::Options FPNCanvas::NullOpt;
+    FPNCanvas::FPNCanvas(int width, int height, struct Options options)
+        :
+        mWidth(width), 
+        mHeight(height),
+        mOptions(options) 
     {
-       // _initialize();
+        _initialize();
     }
     FPNCanvas::~FPNCanvas() {
-        /*std::lock_guard<std::mutex> rm(mCanvasMutex);
+        std::lock_guard<std::mutex> rm(mCanvasMutex);
         if (mWriteIndex != -1) {
             for (int i = 0; i < FPN_IMAGE_BUFFER_SIZE_MAX; i++) {
                 FPNImageData& buffer = mImageBuffers[i];
                 free(buffer.data);
             }
             mWriteIndex = mReadIndex = -1;
-        }*/
+        }
     }
 
-    //void FPNCanvas::opaque(struct FPNImageData* data) {
-        /*std::lock_guard<std::mutex> rm(mCanvasMutex);
+    void FPNCanvas::opaque(struct FPNImageData* data) {
+        std::lock_guard<std::mutex> rm(mCanvasMutex);
         if (data->format == FPNImageFormat::Invalid) {
             return;
         }
@@ -152,12 +152,11 @@ namespace fpn
             mReadIndex = mWriteIndex;
             mWriteIndex = tmp;
         }
-        */
         //FPN_LOGI(LOG_TAG, "FPNCanvas swap buffer: [%d, %d]", mReadIndex, mWriteIndex);
-    //}
+    }
 
-    //void FPNCanvas::paint() {
-        /*if (!mIsInited) return;
+    void FPNCanvas::paint() {
+        if (!mIsInited) return;
 #ifdef FPN_USE_OPENGL_API
         bool chooseDefault = mReadIndex == -1;
         //upload
@@ -220,11 +219,10 @@ namespace fpn
         glBindTexture(GL_TEXTURE_2D, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 #endif 
-        */
-    //}
+    }
 
-    //void FPNCanvas::_initialize() {
-        /*_orthoProjection();
+    void FPNCanvas::_initialize() {
+        _orthoProjection();
         
 #ifdef FPN_USE_OPENGL_API
         glGenBuffers(1, &mGeometry.vertex);
@@ -274,11 +272,9 @@ namespace fpn
         }
 #endif 
         mIsInited = true;
-        */
-    //}
+    }
 
-    //void FPNCanvas::_orthoProjection() {
-        /*
+    void FPNCanvas::_orthoProjection() {
         bool isPortrait = mWidth < mHeight;
         float actualAspect = isPortrait ? (float) mWidth / (float) mHeight : (float) mHeight / (float) mWidth;
 
@@ -311,19 +307,18 @@ namespace fpn
             mProjection[4], mProjection[5], mProjection[6], mProjection[7],
             mProjection[8], mProjection[9], mProjection[10], mProjection[11],
             mProjection[12], mProjection[13], mProjection[14], mProjection[15]);
-        */
-    //}
+    }
 
-    
+
 #ifdef FPN_USE_OPENGL_API
     void FPNCanvas::_checkGLError(const char *op) {
-        /*for (GLint error = glGetError(); error; error = glGetError()) {
+        for (GLint error = glGetError(); error; error = glGetError()) {
             FPN_LOGE(LOG_TAG,"nv log renderer after %s() glError (0x%x)\n", op, error);
-        }*/
+        }
     }
 
     GLuint FPNCanvas::_createProgram(const char* vertex_source, const char* fragment_source) {
-        /*GLuint vertex_shader = _loaderShader(GL_VERTEX_SHADER, vertex_source);
+        GLuint vertex_shader = _loaderShader(GL_VERTEX_SHADER, vertex_source);
         if(!vertex_shader){
             return 0;
         }
@@ -359,13 +354,12 @@ namespace fpn
             }
         }
 
-        return program;*/
-        return 0;
+        return program;
     }
 
     GLuint FPNCanvas::_loaderShader(GLenum shader_type, const char *source) 
     {
-        /*GLuint shader = glCreateShader(shader_type);
+        GLuint shader = glCreateShader(shader_type);
         if(shader)
         {
             glShaderSource(shader, 1, &source, NULL);
@@ -387,8 +381,7 @@ namespace fpn
                 }
             }
         }
-        return shader;*/
-        return 0;
+        return shader;
     }
 #endif 
 

@@ -54,32 +54,32 @@ namespace fpn
     class FPNCanvas
     {
     public: 
-        /*struct Options {
-            bool green_matting = true;
+        struct Options {
+            bool green_matting = false;
             //value bigger, the foreground is bigger
             float green_matting_similarity = 0.45;
             //value bigger, the alpha is more
             float green_matting_smoothness = 0.08;
             float green_matting_spill = 0.08;
             //make surface transparent defaulty
-            bool transparent = true;
-        };*/
-        //static const struct Options NullOpt;
+            bool transparent = false;
+        };
+        static const struct Options NullOpt;
     public:
-        FPNCanvas(int width, int height/*, struct Options options*/);
+        FPNCanvas(int width, int height, struct Options options = NullOpt);
         virtual ~FPNCanvas();
 
         //must be called in render thread
-        //void paint();
+        void paint();
         
         /*
         * must be called in producer thread
         * obtain a memory opaque of FPNImageData for producer to write data into it.
         */
-        //void opaque(struct FPNImageData* data);
+        void opaque(struct FPNImageData* data);
     private:
-        //void _initialize();
-        //void _orthoProjection();
+        void _initialize();
+        void _orthoProjection();
 
 #ifdef FPN_USE_OPENGL_API
         GLuint _createProgram(const char* vertex_source, const char* fragment_source);
@@ -87,7 +87,7 @@ namespace fpn
         void _checkGLError(const char *op);
 #endif 
     private:
-        /*bool mIsInited = false;
+        bool mIsInited = false;
         std::string mName = "gl_canvas";
         struct VertexBuffer mGeometry;
         struct TextureBuffer mTexture;
@@ -104,9 +104,9 @@ namespace fpn
         int mWriteIndex = -1;
         bool mCreateTexture = true;
         int mWidth;
-        int mHeight;*
+        int mHeight;
 
-        struct Options mOptions;*/
+        struct Options mOptions;
     };
 }
 

@@ -24,6 +24,7 @@ static void player_release(JNIEnv* jenv, jobject obj, jlong handle) {
     fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
     if (player) {
         player->release();
+        delete player;
         player = nullptr;
     }
     FPN_LOGI(LOG_TAG, "player released: %ld", handle);
@@ -47,9 +48,6 @@ static void player_set_surface(JNIEnv* jenv, jobject obj, jlong handle, jobject 
     if (surface != 0) {
         ANativeWindow *window = ANativeWindow_fromSurface(jenv, surface);
         ANativeWindow_acquire(window);
-        /*std::shared_ptr<ANativeWindow> windowRef(window, [](ANativeWindow *window) {
-            ANativeWindow_release(window);
-        });*/
         player->getContext()->window = window;
         player->makeCurrent();
     } else {

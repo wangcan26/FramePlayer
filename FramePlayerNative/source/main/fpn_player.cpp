@@ -78,9 +78,9 @@ namespace fpn {
 
     void FPNPlayer::frame(struct FPNImageData* data) {
 #ifdef FPN_USE_EXTRA_RENDER
-        /*if (mCanvas && !mIsPaused) {
+        if (mCanvas && !mIsPaused) {
             mCanvas->opaque(data);
-        }*/
+        }
 #endif 
     }
 
@@ -148,11 +148,11 @@ namespace fpn {
                 //Begin draw
                 if (!mIsReady && mStarted) {
 #ifdef FPN_USE_EXTRA_RENDER
-                    //mCanvas.reset(new FPNCanvas(mWindow->getWidth(), mWindow->getHeight()));
+                    mCanvas.reset(new FPNCanvas(mWindow->getWidth(), mWindow->getHeight()));
 #endif
 #ifdef FPN_USE_EXTRA_PRODUCER
-                    //mGifProducer.reset(new FPNGifProducer(mContentUri, this));
-                    //mGifProducer->start();
+                    mGifProducer.reset(new FPNGifProducer(mContentUri, this));
+                    mGifProducer->start();
 #endif 
                     mIsReady = true;
                 }
@@ -160,19 +160,19 @@ namespace fpn {
 
                 if (isStarted()) {
 #ifdef FPN_USE_EXTRA_RENDER
-                    //mCanvas->paint();
+                    mCanvas->paint();
 #endif
                 }
                 
                 mWindow->notify(FLAG_WINDOW_PRERENT);
             }
 #ifdef FPN_USE_EXTRA_PRODUCER
-            /*if (mFrameCount < 10) {
+            if (mFrameCount < 10) {
                 if (mGifProducer) {
                     mIsPaused? mGifProducer->pause() : mGifProducer->resume();
                 }
                 mFrameCount++;
-            }*/
+            }
 #endif 
         }
     }

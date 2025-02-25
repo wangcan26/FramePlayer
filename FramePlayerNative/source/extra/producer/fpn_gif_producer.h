@@ -25,12 +25,16 @@ namespace fpn
     private:
         FPNPlayer  *mPlayer = nullptr;
         std::thread mDecoderThread;
+        std::mutex mDecodeMutex;
+        std::condition_variable mDecodeCond;
         std::string mGifFilePath;
 
         bool mIsRunning = false;
         bool mIsPlaying = false;
         bool mIsPaused = false;
         int  mCurIndex = -1;
+
+        
     };
 }
 

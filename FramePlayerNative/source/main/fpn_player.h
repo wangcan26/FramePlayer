@@ -41,11 +41,10 @@ namespace fpn
         std::shared_ptr<FPNContext> mContext;
         std::unique_ptr<FPNWindow>  mWindow;
 #ifdef FPN_USE_EXTRA_RENDER
-        //std::unique_ptr<FPNCanvas>  mCanvas;
-        //FPNCanvas *mCanvas = nullptr;
+        std::unique_ptr<FPNCanvas>  mCanvas;
 #endif 
 #ifdef FPN_USE_EXTRA_PRODUCER
-        //std::unique_ptr<FPNGifProducer> mGifProducer;
+        std::unique_ptr<FPNGifProducer> mGifProducer;
 #endif 
         //Rendering Thread resources
         std::thread mRenderThread;

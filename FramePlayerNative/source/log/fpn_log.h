@@ -5,6 +5,7 @@
 
 #ifdef TARGET_OS_ANDROID
 #include <android/log.h>
+#if FPN_DEBUG
 #define FPN_LOGI(LOG_TAG, ...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 #define FPN_LOGE(LOG_TAG, ...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 #else 
@@ -13,7 +14,19 @@
         printf("I/" LOG_TAG ": " __VA_ARGS__);   \
         printf("\n");                        \
     }
+#define FPN_LOGE(LOG_TAG, ...)                       \
+    {                                        \
+        printf("E/" LOG_TAG ": " __VA_ARGS__);   \
+        printf("\n");                        \
+    }
+#endif 
+#else 
 #define FPN_LOGI(LOG_TAG, ...)                       \
+    {                                        \
+        printf("I/" LOG_TAG ": " __VA_ARGS__);   \
+        printf("\n");                        \
+    }
+#define FPN_LOGE(LOG_TAG, ...)                       \
     {                                        \
         printf("E/" LOG_TAG ": " __VA_ARGS__);   \
         printf("\n");                        \
