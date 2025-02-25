@@ -90,7 +90,8 @@ static const float kSelectColor[] = {0, 1, 0};
 namespace fpn 
 {
     const struct FPNCanvas::Options FPNCanvas::NullOpt;
-    FPNCanvas::FPNCanvas(int width, int height, struct Options options): 
+    FPNCanvas::FPNCanvas(int width, int height, struct Options options)
+        :
         mWidth(width), 
         mHeight(height),
         mOptions(options) 
@@ -307,6 +308,8 @@ namespace fpn
             mProjection[8], mProjection[9], mProjection[10], mProjection[11],
             mProjection[12], mProjection[13], mProjection[14], mProjection[15]);
     }
+
+
 #ifdef FPN_USE_OPENGL_API
     void FPNCanvas::_checkGLError(const char *op) {
         for (GLint error = glGetError(); error; error = glGetError()) {

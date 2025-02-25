@@ -21,6 +21,8 @@ namespace fpn
         FPNPlayer();
         ~FPNPlayer();
 
+        void release();
+
         void setContentUri(const std::string& uri);
         void start();
         bool isStarted() const {return mIsReady && mStarted;}
@@ -36,7 +38,7 @@ namespace fpn
         void _render();
 
     private:
-        std::unique_ptr<FPNContext> mContext;
+        std::shared_ptr<FPNContext> mContext;
         std::unique_ptr<FPNWindow>  mWindow;
 #ifdef FPN_USE_EXTRA_RENDER
         std::unique_ptr<FPNCanvas>  mCanvas;

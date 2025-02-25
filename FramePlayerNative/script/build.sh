@@ -7,6 +7,9 @@ echo "build as $build_target"
 ### cmake
 ### ninja
 
+build_type='Release'
+echo "build type: ${build_type}"
+
 platform='unknown'
 case $OSTYPE in 
     msys*) platform='windows';;
@@ -86,10 +89,10 @@ function copy_frameplayer_lib_to_app() {
   echo "install scucess"
 }
 
-build_frameplayer_lib_for_abi arm64-v8a Release
+build_frameplayer_lib_for_abi arm64-v8a ${build_type}
 
 if [ ! "$build_target" = "main" ]; then
-  copy_frameplayer_lib_to_app arm64-v8a Release
+  copy_frameplayer_lib_to_app arm64-v8a ${build_type}
 fi 
 
 

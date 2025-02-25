@@ -1,0 +1,36 @@
+//Roles
+You are a senior graphics and android developer that master java/c++ and ndk, and you master the SurfaceView and egl/opengles and xr sdk development.
+
+
+// Folder Structure
+
+const projectStructure = `
+    app/
+        src/
+            androidTest/
+            main/
+            test/
+        build.gradle
+        proguard-rules.pro
+    FramePlayerNative/
+        assets/
+        cmake/
+        cmake_build/
+        install/
+        script/
+        source
+        CMakeLists.txt
+    gradle/
+        wrapper/
+    build.gradle
+    gradle.properties
+    gradlew
+    gradlew.bat
+    local.properties
+    settings.gradle
+`;
+
+app/src/main place main java code base for the app.
+FramePlayerNative place native code for the app, such as native graphics rendering and xr sdk.
+
+

@@ -6,12 +6,13 @@
 
 namespace fpn 
 {
-    FPNWindow::FPNWindow() {}
+    FPNWindow::FPNWindow() {
+        
+    }
     FPNWindow::~FPNWindow() {
-        mContext = nullptr;
     }
 
-    void FPNWindow::attach(FPNContext *context) {
+    void FPNWindow::attach(const std::shared_ptr<FPNContext>& context) {
         mContext = context;
     }
 
@@ -154,6 +155,7 @@ namespace fpn
         }
 
         mContext->surface = surface;
+        FPN_LOGI(LOG_TAG,"Render Window is restore");
         return true;
 #endif 
 #endif     
@@ -188,27 +190,40 @@ namespace fpn
         mContext->surface = EGL_NO_SURFACE;
 #endif    
 #endif 
+        FPN_LOGI(LOG_TAG,"Render Window is released");
     }
 
     void FPNWindow::_onDestroy() {
-        if (!mContext) return;
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed");
+        if (!mContext->window) return;
 #ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID
-        eglMakeCurrent(mContext->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        eglDestroyContext(mContext->display, mContext->context);
+        if (mContext->display != EGL_NO_DISPLAY) {
+            eglMakeCurrent(mContext->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end1");
+        if (mContext->context != EGL_NO_CONTEXT) {
+            eglDestroyContext(mContext->display, mContext->context);
+        }
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end2");
         if(mContext->surface != EGL_NO_SURFACE)
         {
             eglDestroySurface(mContext->display, mContext->surface);
         }
-        eglTerminate(mContext->display);
-
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end3");
+        if (mContext->display != EGL_NO_DISPLAY) {
+            eglTerminate(mContext->display);
+        }   
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end4");
         mContext->display = EGL_NO_DISPLAY;
         mContext->context = EGL_NO_CONTEXT;
+        mContext->surface = EGL_NO_SURFACE;
         mContext->config = 0;
-        mContext->window = 0;
 #endif 
 #endif 
+        mContext->window = nullptr;
         mWindowInited = false;
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end");
     }
 
     void FPNWindow::_onPresent() {

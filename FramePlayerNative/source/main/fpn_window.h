@@ -1,6 +1,8 @@
 #ifndef FPN_WINDOW_H
 #define FPN_WINDOW_H
 
+#include <memory>
+
 namespace fpn 
 {
     struct FPNContext;
@@ -19,7 +21,7 @@ namespace fpn
         FPNWindow();
         ~FPNWindow();
 
-        void attach(FPNContext *context);
+        void attach(const std::shared_ptr<FPNContext>& context);
         bool isInited() const {return mWindowInited;}
         bool isValid() const;
 
@@ -36,7 +38,7 @@ namespace fpn
         bool _onResize();
         void _onPresent();
     private:
-        FPNContext *mContext = nullptr;
+        std::shared_ptr<FPNContext> mContext = nullptr;
         int mWidth, mHeight;
         bool mWindowInited = false;
     };

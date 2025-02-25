@@ -3,6 +3,7 @@ package com.demo;
 import android.app.Activity;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.annotation.Nullable;
@@ -19,6 +20,7 @@ public class TestFramePlayer extends Activity {
         //getWindow().setFormat(PixelFormat.TRANSLUCENT);
         mSurfaceView = (FrameSurfaceView) findViewById(R.id.frame_surface_view);
         mSurfaceView.init(this);
+        Log.e("TestFramePlayer", "PlayerLifecycle onCreate");
     }
 
     @Override
@@ -28,17 +30,21 @@ public class TestFramePlayer extends Activity {
 
     @Override
     protected void onResume() {
+        Log.i("TestFramePlayer", "PlayerLifecycle onResume");
         super.onResume();
     }
 
     @Override
     protected void onPause() {
+        Log.i("TestFramePlayer", "PlayerLifecycle onPause");
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mSurfaceView.onDestroy();
+        Log.i("TestFramePlayer", "PlayerLifecycle onDestroy");
+        super.onDestroy();
+        finish();
     }
 }

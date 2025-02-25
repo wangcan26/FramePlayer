@@ -20,16 +20,28 @@
 
 namespace fpn {
     FPNPlayer::FPNPlayer() {
-        mContext.reset(new FPNContext());
+        mContext = std::shared_ptr<FPNContext>(new FPNContext());
         mWindow.reset(new FPNWindow());
+        mWindow->attach(mContext);
         mRenderThread = std::thread(&FPNPlayer::_render, this);
+        FPN_LOGI(LOG_TAG, "FPNPlayer constructor");
     }
 
     FPNPlayer::~FPNPlayer() {
-        mMessage = MSG_LOOP_EXIT;
+        FPN_LOGI(LOG_TAG, "FPNPlayer deconstructor");
+        release();
+    }
+
+    void FPNPlayer::release() {
+        std::unique_lock<std::mutex> rm(mRenderMutex);
+        if (mMessage != MSG_LOOP_EXIT) {
+            mMessage = MSG_LOOP_EXIT;
+            mRenderCond.wait(rm);
+        }
         if(mRenderThread.joinable()) {
             mRenderThread.join();
         }
+        FPN_LOGI(LOG_TAG, "FPNPlayer is released");
     }
 
     void FPNPlayer::setContentUri(const std::string& uri) {
@@ -46,7 +58,6 @@ namespace fpn {
         do {
             if (mContext && mContext->window)
             {
-                mWindow->attach(mContext.get());
                 mIsPaused = false;
                 if (mWindow->isValid()) {
                     mMessage = MSG_WINDOW_UPDATE;
@@ -107,10 +118,10 @@ namespace fpn {
             case MSG_LOOP_EXIT:
             {
                 std::lock_guard<std::mutex> rm(mRenderMutex);
-                if (mWindow && mWindow->isValid()) {
+                if (mWindow) {
                     mWindow->notify(FLAG_WINDOW_DESTROY);
                 }
-                mMessage = MSG_NONE;
+                //mMessage = MSG_NONE;
                 mRenderCond.notify_one();
                 mStarted = false;
                 run = false;
@@ -127,12 +138,13 @@ namespace fpn {
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 }
-                glClearColor(0.0, 0.0, 0.0, 0.0);
+                glClearColor(0.0, 0.0, 0.0, mTransparent ? 0.0 : 1.0);
                 glClear(GL_COLOR_BUFFER_BIT); //
                 glViewport(0, 0, mWindow->getWidth(), mWindow->getHeight());
                 
 #endif
 #endif  
+                
                 //Begin draw
                 if (!mIsReady && mStarted) {
 #ifdef FPN_USE_EXTRA_RENDER

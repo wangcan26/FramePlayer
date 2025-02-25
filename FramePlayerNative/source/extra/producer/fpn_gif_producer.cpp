@@ -12,6 +12,7 @@ extern "C"
 {
 #endif
 #include "nsgif/libnsgif.h"
+
 static void *bitmap_create(int width, int height) {
     return calloc((size_t) (width * height), 4);
 }
@@ -95,7 +96,7 @@ static unsigned char *loadFile(const char *path, size_t *pFileLength) {
     fseek(fd, 0, SEEK_END);
     size = ftell(fd);
     fseek(fd, 0, SEEK_SET);
-    data = (unsigned char*)malloc(size);
+    data = (unsigned char*)malloc(size);  
     if (data == NULL) {
         FPN_LOGE(LOG_TAG, "Unable to allocate [%lld] bytes", (long long) size);
         fclose(fd);
@@ -128,8 +129,11 @@ namespace fpn
 
     FPNGifProducer::~FPNGifProducer() 
     {
-        mIsRunning = false;
+        FPN_LOGI(LOG_TAG, "begin end to decode gif");
+        std::unique_lock<std::mutex> rm(mDecodeMutex);
         stop();
+        mIsRunning = false;
+        mDecodeCond.wait(rm);
         if(mDecoderThread.joinable()) {
             mDecoderThread.join();
         }
@@ -201,6 +205,12 @@ namespace fpn
                 std::this_thread::sleep_for(std::chrono::milliseconds(delay));
             }
         }
-
+        FPN_LOGI(LOG_TAG, "end to decode gif1");
+        gif_finalise(gif);
+        free(gif);
+        free(buffer);
+        std::lock_guard<std::mutex> rm(mDecodeMutex);
+        mDecodeCond.notify_one();
+        FPN_LOGI(LOG_TAG, "end to decode gif");
     }
 }

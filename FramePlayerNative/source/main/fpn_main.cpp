@@ -57,7 +57,7 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     jint result = -1;
     JNIEnv *env = 0;
 
-    if(vm->GetEnv(&g_uenv.venv, JNI_VERSION_1_6)!=JNI_OK){
+    if(vm->GetEnv(&g_uenv.venv, JNI_VERSION_1_4)!=JNI_OK){
         FPN_LOGI(LOG_TAG, "jni load 1.6 faild");
         goto fail;
     }
@@ -71,10 +71,10 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
         goto fail;
     }
 
-    result = JNI_VERSION_1_6;
+    result = JNI_VERSION_1_4;
     g_vm = vm;
     g_env = env;
-    FPN_LOGI(LOG_TAG, "jni load 1.6 successful");
+    FPN_LOGI(LOG_TAG, "jni load 1.4 successful");
 
     fail:
     return result;

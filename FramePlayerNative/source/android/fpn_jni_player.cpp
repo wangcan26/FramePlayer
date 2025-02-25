@@ -14,45 +14,49 @@ extern "C"
 {
 #endif
 
-std::unordered_map<long, std::shared_ptr<fpn::FPNPlayer>> m_players;
-
-static long player_create(JNIEnv* jenv, jobject obj) {
-    FPN_LOGI(LOG_TAG, "player created");
+static jlong player_create(JNIEnv* jenv, jobject obj) {
     fpn::FPNPlayer *player = new fpn::FPNPlayer();
-    long handle = (long)player;
-    m_players[handle] = std::shared_ptr<fpn::FPNPlayer>(player);
+    jlong handle = (jlong)player;
     return handle;
 }
 
 static void player_release(JNIEnv* jenv, jobject obj, jlong handle) {
-    FPN_LOGI(LOG_TAG, "player released");
-    m_players[handle] = nullptr;
+    fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
+    if (player) {
+        player->release();
+        delete player;
+        player = nullptr;
+    }
+    FPN_LOGI(LOG_TAG, "player released: %ld", handle);
 }
 
 static void player_start(JNIEnv* jenv, jobject obj, jlong handle) {
-    FPN_LOGI(LOG_TAG, "player started");
+    FPN_LOGI(LOG_TAG, "player started: %ld", handle);
     fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
     player->start();
 }
 
 static void player_set_content(JNIEnv* jenv, jobject obj, jlong handle, jstring uri) {
+    FPN_LOGI(LOG_TAG, "player set content: %s, %ld", "", handle);
     std::string contentUri = jstring2string(jenv, uri);
-    FPN_LOGI(LOG_TAG, "player set content: %s", contentUri.c_str());
     fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
     player->setContentUri(contentUri);
 }
 
 static void player_set_surface(JNIEnv* jenv, jobject obj, jlong handle, jobject surface) {
-    FPN_LOGI(LOG_TAG, "player set surface, %d, %ld", surface, handle);
     fpn::FPNPlayer *player = (fpn::FPNPlayer*)handle;
     if (surface != 0) {
         ANativeWindow *window = ANativeWindow_fromSurface(jenv, surface);
+        ANativeWindow_acquire(window);
         player->getContext()->window = window;
+        player->makeCurrent();
     } else {
-        ANativeWindow_release(player->getContext()->window);
+        ANativeWindow *window = player->getContext()->window;
         player->getContext()->window = nullptr;
+        player->makeCurrent();
+        ANativeWindow_release(window);
     }
-    player->makeCurrent();
+    FPN_LOGI(LOG_TAG, "player set surface, %p, %ld", surface, handle);
 }
 
 #ifdef __cplusplus
