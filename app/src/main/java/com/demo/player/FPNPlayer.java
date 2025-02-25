@@ -9,9 +9,11 @@ import android.view.Surface;
  */
 public class FPNPlayer {
     private long mHandle = -1;
+    private int id = -1;
     public FPNPlayer() {
         mHandle = nativeCreate();
-        Log.i("FPNPlayer", "JavaFPNPlayer create ");
+        id = System.identityHashCode(this);
+        Log.i("FPNPlayer", "JavaFPNPlayer(" + id + ")create " + mHandle);
     }
 
     public void setContentUri(String uri) {
@@ -40,7 +42,7 @@ public class FPNPlayer {
     }
 
     public void release() {
-        Log.i("FPNPlayer", "JavaFPNPlayer release");
+        Log.i("FPNPlayer", "JavaFPNPlayer(" + id + ") release " + mHandle);
         if (mHandle != -1) {
             nativeRelease(mHandle);
             mHandle = -1;

@@ -64,7 +64,7 @@ namespace fpn
         std::string mContentUri;
 
         //options 
-        bool mTransparent = false;
+        bool mTransparent = true;
         int mFrameCount = 0;
     };
 }

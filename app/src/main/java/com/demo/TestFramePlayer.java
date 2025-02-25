@@ -42,8 +42,9 @@ public class TestFramePlayer extends Activity {
 
     @Override
     protected void onDestroy() {
-        Log.i("TestFramePlayer", "PlayerLifecycle onDestroy");
         mSurfaceView.onDestroy();
+        Log.i("TestFramePlayer", "PlayerLifecycle onDestroy");
         super.onDestroy();
+        finish();
     }
 }

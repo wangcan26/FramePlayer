@@ -55,14 +55,14 @@ namespace fpn
     {
     public: 
         struct Options {
-            bool green_matting = false;
+            bool green_matting = true;
             //value bigger, the foreground is bigger
             float green_matting_similarity = 0.45;
             //value bigger, the alpha is more
             float green_matting_smoothness = 0.08;
             float green_matting_spill = 0.08;
             //make surface transparent defaulty
-            bool transparent = false;
+            bool transparent = true;
         };
         static const struct Options NullOpt;
     public:

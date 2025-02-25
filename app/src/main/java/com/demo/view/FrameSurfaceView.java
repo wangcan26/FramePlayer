@@ -65,6 +65,7 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
         if (mPlayer != null) {
             Log.i(TAG, "SurfaceViewLifecycle: onDestroy");
             mPlayer.release();
+            mPlayer = null;
         }
     }
 
@@ -76,7 +77,7 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
     @Override
     public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width, int height) {
         if (mPlayer != null) {
-            //mPlayer.setSurface(mSurfaceHolder.getSurface());
+            mPlayer.setSurface(mSurfaceHolder.getSurface());
         }
 
         Log.i(TAG, "SurfaceViewLifecycle: surfaceChanged");
@@ -86,7 +87,7 @@ public class FrameSurfaceView extends SurfaceView implements SurfaceHolder.Callb
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
         Log.i(TAG, "SurfaceViewLifecycle: surfaceDestroyed");
         if (mPlayer != null) {
-            //mPlayer.setSurface(null);
+            mPlayer.setSurface(null);
         }
     }
 }
