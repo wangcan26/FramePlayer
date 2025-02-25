@@ -21,7 +21,7 @@ namespace fpn
         FPNWindow();
         ~FPNWindow();
 
-        void attach(const std::shared_ptr<FPNContext> &context);
+        void attach(const std::shared_ptr<FPNContext>& context);
         bool isInited() const {return mWindowInited;}
         bool isValid() const;
 

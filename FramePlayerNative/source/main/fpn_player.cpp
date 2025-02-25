@@ -24,19 +24,24 @@ namespace fpn {
         mWindow.reset(new FPNWindow());
         mWindow->attach(mContext);
         mRenderThread = std::thread(&FPNPlayer::_render, this);
+        FPN_LOGI(LOG_TAG, "FPNPlayer constructor");
     }
 
     FPNPlayer::~FPNPlayer() {
-        
+        FPN_LOGI(LOG_TAG, "FPNPlayer deconstructor");
+        release();
     }
 
     void FPNPlayer::release() {
-        mMessage = MSG_LOOP_EXIT;
-        FPN_LOGI(LOG_TAG,"FPN_Lifecyle: Player is Released");
+        std::unique_lock<std::mutex> rm(mRenderMutex);
+        if (mMessage != MSG_LOOP_EXIT) {
+            mMessage = MSG_LOOP_EXIT;
+            mRenderCond.wait(rm);
+        }
         if(mRenderThread.joinable()) {
             mRenderThread.join();
         }
-        FPN_LOGI(LOG_TAG,"FPN_Lifecyle: Player is Released end");
+        FPN_LOGI(LOG_TAG, "FPNPlayer is released");
     }
 
     void FPNPlayer::setContentUri(const std::string& uri) {
@@ -73,9 +78,9 @@ namespace fpn {
 
     void FPNPlayer::frame(struct FPNImageData* data) {
 #ifdef FPN_USE_EXTRA_RENDER
-        if (mCanvas && !mIsPaused) {
+        /*if (mCanvas && !mIsPaused) {
             mCanvas->opaque(data);
-        }
+        }*/
 #endif 
     }
 
@@ -116,7 +121,7 @@ namespace fpn {
                 if (mWindow) {
                     mWindow->notify(FLAG_WINDOW_DESTROY);
                 }
-                mMessage = MSG_NONE;
+                //mMessage = MSG_NONE;
                 mRenderCond.notify_one();
                 mStarted = false;
                 run = false;
@@ -133,17 +138,17 @@ namespace fpn {
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 }
-                glClearColor(0.0, 0.0, 0.0, 0.0);
+                glClearColor(1.0, 0.0, 0.0, mTransparent ? 0.0 : 1.0);
                 glClear(GL_COLOR_BUFFER_BIT); //
                 glViewport(0, 0, mWindow->getWidth(), mWindow->getHeight());
                 
 #endif
 #endif  
-                return;
+                
                 //Begin draw
                 if (!mIsReady && mStarted) {
 #ifdef FPN_USE_EXTRA_RENDER
-                    mCanvas.reset(new FPNCanvas(mWindow->getWidth(), mWindow->getHeight()));
+                    //mCanvas.reset(new FPNCanvas(mWindow->getWidth(), mWindow->getHeight()));
 #endif
 #ifdef FPN_USE_EXTRA_PRODUCER
                     //mGifProducer.reset(new FPNGifProducer(mContentUri, this));
@@ -155,19 +160,19 @@ namespace fpn {
 
                 if (isStarted()) {
 #ifdef FPN_USE_EXTRA_RENDER
-                    mCanvas->paint();
+                    //mCanvas->paint();
 #endif
                 }
                 
                 mWindow->notify(FLAG_WINDOW_PRERENT);
             }
 #ifdef FPN_USE_EXTRA_PRODUCER
-            if (mFrameCount < 10) {
+            /*if (mFrameCount < 10) {
                 if (mGifProducer) {
                     mIsPaused? mGifProducer->pause() : mGifProducer->resume();
                 }
                 mFrameCount++;
-            }
+            }*/
 #endif 
         }
     }

@@ -23,12 +23,12 @@ namespace fpn
 
     struct FPNContext {
 #if TARGET_OS_ANDROID
-        ANativeWindow         *window    = nullptr;
+        ANativeWindow*   window    = nullptr;
 
 #ifdef FPN_USE_OPENGL_API
-        EGLDisplay  display;
-        EGLSurface  surface;
-        EGLContext  context;
+        EGLDisplay  display = EGL_NO_DISPLAY;
+        EGLSurface  surface = EGL_NO_SURFACE;
+        EGLContext  context = EGL_NO_CONTEXT;
         EGLConfig   config;
 #endif 
 #else 

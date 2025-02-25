@@ -6,12 +6,13 @@
 
 namespace fpn 
 {
-    FPNWindow::FPNWindow() {}
+    FPNWindow::FPNWindow() {
+        
+    }
     FPNWindow::~FPNWindow() {
-        FPN_LOGI(LOG_TAG,"FPN_Lifecyle: Render Window is Released");
     }
 
-    void FPNWindow::attach(const std::shared_ptr<FPNContext> &context) {
+    void FPNWindow::attach(const std::shared_ptr<FPNContext>& context) {
         mContext = context;
     }
 
@@ -83,6 +84,13 @@ namespace fpn
             FPN_LOGE(LOG_TAG,"eglGetDisplay() returned error %d", eglGetError());
             return false;
         }
+
+        if (!eglInitialize(display, 0, 0)) 
+        {
+            FPN_LOGE(LOG_TAG,"eglInitialize() returned error %d", eglGetError());
+            return false;
+        }
+
         if(!eglChooseConfig(display, attribs, &config, 1, &numConfigs))
         {
             FPN_LOGE(LOG_TAG,"eglChooseConfig() returned error %d", eglGetError());
@@ -147,6 +155,7 @@ namespace fpn
         }
 
         mContext->surface = surface;
+        FPN_LOGI(LOG_TAG,"Render Window is restore");
         return true;
 #endif 
 #endif     
@@ -174,44 +183,47 @@ namespace fpn
     }
 
     void FPNWindow::_onRelease() {
-        FPN_LOGI(LOG_TAG,"Render Window is onReleased");
 #ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID
         eglMakeCurrent(mContext->display, EGL_NO_SURFACE, EGL_NO_SURFACE, mContext->context);
         eglDestroySurface(mContext->display, mContext->surface);
         mContext->surface = EGL_NO_SURFACE;
-        /*eglDestroyContext(mContext->display, mContext->context);
-        eglTerminate(mContext->display);
-        mContext->display = EGL_NO_DISPLAY;
-        mContext->context = EGL_NO_CONTEXT;
-        mContext->surface = EGL_NO_SURFACE;
-        mContext->config = 0;*/
 #endif    
 #endif 
+        FPN_LOGI(LOG_TAG,"Render Window is released");
     }
 
     void FPNWindow::_onDestroy() {
-        FPN_LOGI(LOG_TAG,"Render Window is onDestroy begin: %p", mContext->window);
-        if (!mWindowInited) return;
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed");
+        if (!mContext->window) return;
 #ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID
-        FPN_LOGI(LOG_TAG,"Render Window destroy egl resources");
+        if (mContext->display != EGL_NO_DISPLAY) {
+            eglMakeCurrent(mContext->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end1");
+        if (mContext->context != EGL_NO_CONTEXT) {
+            eglDestroyContext(mContext->display, mContext->context);
+        }
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end2");
         if(mContext->surface != EGL_NO_SURFACE)
         {
             eglDestroySurface(mContext->display, mContext->surface);
         }
-        eglDestroyContext(mContext->display, mContext->context);
-        eglMakeCurrent(mContext->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-        FPN_LOGI(LOG_TAG,"Render Window disconnect display");
-        eglTerminate(mContext->display);
-
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end3");
+        if (mContext->display != EGL_NO_DISPLAY) {
+            eglTerminate(mContext->display);
+        }   
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end4");
         mContext->display = EGL_NO_DISPLAY;
         mContext->context = EGL_NO_CONTEXT;
         mContext->surface = EGL_NO_SURFACE;
         mContext->config = 0;
 #endif 
 #endif 
+        mContext->window = nullptr;
         mWindowInited = false;
+        FPN_LOGI(LOG_TAG,"Render Window is destroyed end");
     }
 
     void FPNWindow::_onPresent() {

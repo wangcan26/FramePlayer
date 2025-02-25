@@ -21,6 +21,8 @@ namespace fpn
         FPNPlayer();
         ~FPNPlayer();
 
+        void release();
+
         void setContentUri(const std::string& uri);
         void start();
         bool isStarted() const {return mIsReady && mStarted;}
@@ -32,8 +34,6 @@ namespace fpn
         //between cpu and gpu.
         //Avoid to change width, height or foramt of the data for performance.
         void frame(struct FPNImageData* data);
-
-        void release();
     private:
         void _render();
 
@@ -41,10 +41,11 @@ namespace fpn
         std::shared_ptr<FPNContext> mContext;
         std::unique_ptr<FPNWindow>  mWindow;
 #ifdef FPN_USE_EXTRA_RENDER
-        std::unique_ptr<FPNCanvas>  mCanvas;
+        //std::unique_ptr<FPNCanvas>  mCanvas;
+        //FPNCanvas *mCanvas = nullptr;
 #endif 
 #ifdef FPN_USE_EXTRA_PRODUCER
-        std::unique_ptr<FPNGifProducer> mGifProducer;
+        //std::unique_ptr<FPNGifProducer> mGifProducer;
 #endif 
         //Rendering Thread resources
         std::thread mRenderThread;
@@ -64,7 +65,7 @@ namespace fpn
         std::string mContentUri;
 
         //options 
-        bool mTransparent = true;
+        bool mTransparent = false;
         int mFrameCount = 0;
     };
 }
