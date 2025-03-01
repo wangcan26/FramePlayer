@@ -12,27 +12,28 @@
 #include "main/fpn_context.h"
 
 #define FPN_IMAGE_BUFFER_SIZE_MAX 2 
+#define FPN_INVALID_GPU_VALUE -1
 
 namespace fpn 
 {
     struct VertexBuffer {
 #ifdef FPN_USE_OPENGL_API
-        GLuint vertex;
+        GLuint vertex = FPN_INVALID_GPU_VALUE;
         GLuint uv;
-        GLuint indice;
+        GLuint indice = FPN_INVALID_GPU_VALUE;
 #endif  
     };
 
     struct TextureBuffer {
 #ifdef FPN_USE_OPENGL_API
-        GLuint texture;
+        GLuint texture = FPN_INVALID_GPU_VALUE;
 #endif  
     };
 
     struct RenderPipeline
     {
 #ifdef FPN_USE_OPENGL_API
-        GLuint program;
+        GLuint program = FPN_INVALID_GPU_VALUE;
         GLuint position;
         GLuint uv;
         GLuint color;
@@ -77,6 +78,9 @@ namespace fpn
         * obtain a memory opaque of FPNImageData for producer to write data into it.
         */
         void opaque(struct FPNImageData* data);
+
+        //release gpu resources
+        void release();
     private:
         void _initialize();
         void _orthoProjection();

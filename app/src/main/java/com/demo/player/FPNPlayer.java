@@ -13,28 +13,28 @@ public class FPNPlayer {
     public FPNPlayer() {
         mHandle = nativeCreate();
         id = System.identityHashCode(this);
-        Log.i("FPNPlayer", "JavaFPNPlayer(" + id + ")create " + mHandle);
+        Log.i("JavaFPNPlayer", "JavaFPNPlayer(" + id + ")create " + mHandle);
     }
 
     public void setContentUri(String uri) {
         if (mHandle != -1) {
             nativeSetContentUri(mHandle, uri);
         }
-        Log.i("FPNPlayer", "JavaFPNPlayer set content: " + uri);
+        Log.i("JavaFPNPlayer", "JavaFPNPlayer set content: " + uri);
     }
 
     public void start() {
         if (mHandle != -1) {
             nativeStart(mHandle);
         }
-        Log.i("FPNPlayer", "JavaFPNPlayer start");
+        Log.i("JavaFPNPlayer", "JavaFPNPlayer start");
     }
 
     public void setSurface(Surface surface) {
         if (mHandle != -1) {
             nativeSetSurface(mHandle, surface);
         }
-        Log.i("FPNPlayer", "JavaFPNPlayer setSurface");
+        Log.i("JavaFPNPlayer", "JavaFPNPlayer setSurface");
     }
 
     public long handle() {
@@ -42,7 +42,7 @@ public class FPNPlayer {
     }
 
     public void release() {
-        Log.i("FPNPlayer", "JavaFPNPlayer(" + id + ") release " + mHandle);
+        Log.i("JavaFPNPlayer", "JavaFPNPlayer(" + id + ") release " + mHandle);
         if (mHandle != -1) {
             nativeRelease(mHandle);
             mHandle = -1;

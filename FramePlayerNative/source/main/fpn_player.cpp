@@ -22,7 +22,9 @@ namespace fpn {
     FPNPlayer::FPNPlayer() {
         mContext = std::shared_ptr<FPNContext>(new FPNContext());
         mWindow.reset(new FPNWindow());
-        mWindow->attach(mContext);
+        if (mWindow) {
+            mWindow->attach(mContext);
+        }
         mRenderThread = std::thread(&FPNPlayer::_render, this);
         FPN_LOGI(LOG_TAG, "FPNPlayer constructor");
     }
@@ -59,7 +61,7 @@ namespace fpn {
             if (mContext && mContext->window)
             {
                 mIsPaused = false;
-                if (mWindow->isValid()) {
+                if (mWindow && mWindow->isValid()) {
                     mMessage = MSG_WINDOW_UPDATE;
                     break;
                 }
@@ -92,7 +94,9 @@ namespace fpn {
             case MSG_WINDOW_CREATE:
             {
                 std::lock_guard<std::mutex> rm(mRenderMutex);
-                run = mWindow->notify(!mWindow->isInited()? FLAG_WINDOW_CREATE: FLAG_WINDOW_RESTORE);
+                if (mWindow) {
+                    run = mWindow->notify(!mWindow->isInited()? FLAG_WINDOW_CREATE: FLAG_WINDOW_RESTORE);
+                }
                 mMessage = MSG_NONE;
                 mRenderCond.notify_one();
                 break;
@@ -100,7 +104,9 @@ namespace fpn {
             case MSG_WINDOW_UPDATE:
             {
                 std::lock_guard<std::mutex> rm(mRenderMutex);
-                mWindow->notify(FLAG_WINDOW_RESIZE);
+                if (mWindow) {
+                    mWindow->notify(FLAG_WINDOW_RESIZE);
+                }
                 mMessage = MSG_NONE;
                 mRenderCond.notify_one();
                 break;
@@ -108,7 +114,7 @@ namespace fpn {
             case MSG_WINDOW_DESTROY:
             {
                 std::lock_guard<std::mutex> rm(mRenderMutex);
-                if (mWindow->isValid()) {
+                if (mWindow && mWindow->isValid()) {
                     mWindow->notify(FLAG_WINDOW_RELEASE);
                 }
                 mMessage = MSG_NONE;
@@ -121,6 +127,11 @@ namespace fpn {
                 if (mWindow) {
                     mWindow->notify(FLAG_WINDOW_DESTROY);
                 }
+#ifdef FPN_USE_EXTRA_RENDER
+                if (mCanvas) {
+                    mCanvas->release();
+                }
+#endif 
                 //mMessage = MSG_NONE;
                 mRenderCond.notify_one();
                 mStarted = false;
@@ -130,7 +141,7 @@ namespace fpn {
             default:
                 break;
             }
-            if (mWindow->isValid() && !mIsPaused) {
+            if (mWindow && mWindow->isValid() && !mIsPaused) {
 #ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID   
                 glDisable(GL_DEPTH_TEST);
@@ -163,7 +174,6 @@ namespace fpn {
                     mCanvas->paint();
 #endif
                 }
-                
                 mWindow->notify(FLAG_WINDOW_PRERENT);
             }
 #ifdef FPN_USE_EXTRA_PRODUCER

@@ -195,7 +195,6 @@ namespace fpn
 
     void FPNWindow::_onDestroy() {
         FPN_LOGI(LOG_TAG,"Render Window is destroyed");
-        if (!mContext->window) return;
 #ifdef FPN_USE_OPENGL_API
 #ifdef TARGET_OS_ANDROID
         if (mContext->display != EGL_NO_DISPLAY) {
@@ -221,7 +220,7 @@ namespace fpn
         mContext->config = 0;
 #endif 
 #endif 
-        mContext->window = nullptr;
+        //mContext->window = nullptr;
         mWindowInited = false;
         FPN_LOGI(LOG_TAG,"Render Window is destroyed end");
     }

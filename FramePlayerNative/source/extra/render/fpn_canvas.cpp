@@ -109,6 +109,29 @@ namespace fpn
         }
     }
 
+    void FPNCanvas::release() {
+#ifdef FPN_USE_OPENGL_API  
+        if (mDefaultPipeline.program != FPN_INVALID_GPU_VALUE) {
+            glDeleteProgram(mDefaultPipeline.program);
+            mDefaultPipeline.program = FPN_INVALID_GPU_VALUE;
+        }
+
+        if (mTexturePipeline.program != FPN_INVALID_GPU_VALUE) {
+            glDeleteProgram(mTexturePipeline.program);
+            mTexturePipeline.program = FPN_INVALID_GPU_VALUE;
+        }
+
+        if (mGeometry.vertex != FPN_INVALID_GPU_VALUE) {
+            glDeleteBuffers(1, &mGeometry.vertex);
+            mGeometry.vertex = FPN_INVALID_GPU_VALUE;
+        }
+        if (mGeometry.indice != FPN_INVALID_GPU_VALUE) {
+            glDeleteBuffers(1, &mGeometry.indice);
+            mGeometry.indice = FPN_INVALID_GPU_VALUE;
+        }
+#endif 
+    }
+
     void FPNCanvas::opaque(struct FPNImageData* data) {
         std::lock_guard<std::mutex> rm(mCanvasMutex);
         if (data->format == FPNImageFormat::Invalid) {
@@ -175,6 +198,9 @@ namespace fpn
                 format = GL_RGB;
             }
             if (mCreateTexture) {
+                if (mTexture.texture != FPN_INVALID_GPU_VALUE) {
+                    glDeleteTextures(1, &mTexture.texture);
+                }
                 glGenTextures(1, &mTexture.texture);
                 glBindTexture(GL_TEXTURE_2D, mTexture.texture);
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

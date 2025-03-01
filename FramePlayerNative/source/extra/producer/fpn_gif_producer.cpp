@@ -175,6 +175,7 @@ namespace fpn
         if (buffer == NULL) 
         {
             free(gif);
+            free(buffer);
             FPN_LOGE(LOG_TAG, "gif data read failed");
             return;
         }
@@ -183,6 +184,8 @@ namespace fpn
             code = gif_initialise(gif, length, buffer);
             if (code != GIF_OK && code != GIF_WORKING) {
                 showError("gif_initialise", code);
+                free(gif);
+                free(buffer);
                 return;
             }
         } while(code != GIF_OK);
